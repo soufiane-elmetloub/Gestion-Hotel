@@ -33,7 +33,5 @@ Cette solution facilite la gestion des réservations, des clients, des chambres 
 - `/android-app` → Application Android (Java + Volley)  
 - `/backend-php` → Code backend en PHP + API REST 
 
----
 
-## 🚀 Installation & Utilisation
 
