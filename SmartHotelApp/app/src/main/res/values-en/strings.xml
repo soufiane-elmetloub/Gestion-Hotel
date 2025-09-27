@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Smart Hotel</string>
+    <string name="app_logo">Smart Hotel App</string>
+    <string name="notifications">Notifications</string>
+    <string name="loading">Loading...</string>
+    <string name="no_notifications">No notifications at the moment</string>
+    <string name="notifications_will_appear_here">Notifications will appear here when available</string>
+    <string name="back">Back</string>
+    <string name="booking">Booking</string>
+    <string name="checkout">Checkout</string>
+    <string name="service">Service</string>
+    <string name="notification_booking">New Booking</string>
+    <string name="notification_checkout">Check-out Registered</string>
+    <string name="notification_service">Service Request</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_dark_mode">Dark Mode</string>
+    <string name="language_ar">العربية</string>
+    <string name="language_en">English</string>
+    <string name="language_fr">Français</string>
+
+    <!-- Profile / Common labels -->
+    <string name="view_profile">View Profile</string>
+    <string name="contact_support">Contact Support</string>
+    <string name="settings">Settings</string>
+    <string name="logout">Logout</string>
+    <string name="employee_details">Employee Details</string>
+    <string name="username_label">Username</string>
+    <string name="full_name_label">Full Name</string>
+    <string name="assigned_section_label">Assigned Section</string>
+    <string name="phone_label">Phone</string>
+</resources>

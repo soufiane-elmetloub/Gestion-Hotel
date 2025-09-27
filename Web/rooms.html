@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rooms - Smart Hotel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Shared Layout Styles -->
+    <link href="assets/layout.css" rel="stylesheet">
+    <style>
+        :root { --primary-color:#4e73df; --secondary-color:#1cc88a; --danger-color:#e74a3b; --warning-color:#f6c23e; --info-color:#36b9cc; --light-color:#f8f9fc; --dark-color:#5a5c69; }
+        body { font-family:'Cairo',sans-serif; background-color:var(--light-color); min-height:100vh; }
+        .navbar { background:linear-gradient(135deg, var(--primary-color) 0%, #2e59d9 100%); box-shadow:0 2px 10px rgba(0,0,0,.1); }
+        .navbar .search-center { position:absolute; left:50%; transform:translateX(-50%); width:min(640px, calc(100% - 360px)); display:flex; align-items:center; gap:8px; }
+        .navbar .container-fluid { position:relative; }
+        .navbar .search-center .search-box { position:relative; width:100%; }
+        .navbar .search-center .search-box input { width:100%; height:38px; border-radius:9999px; border:none; outline:none; padding:0 44px; background:rgba(255,255,255,.9); color:#1b1e23; box-shadow: inset 0 0 0 1px rgba(255,255,255,.65), 0 4px 10px rgba(0,0,0,.12); }
+        .navbar .search-center .search-box .icon-left, .navbar .search-center .search-box .icon-right { position:absolute; top:50%; transform:translateY(-50%); color:#6b7280; }
+        .navbar .search-center .search-box .icon-left { left:14px; }
+        .navbar .search-center .search-box .icon-right { right:12px; }
+        @media (max-width:576px){ .navbar .search-center{ width:75%; } .navbar .search-center .search-box input{ height:34px; } }
+        /* Sidebar */
+        .sidebar { position:fixed; top:0; left:0; height:100vh; width:260px; background:linear-gradient(180deg, #2e59d9 0%, var(--primary-color) 65%); color:#fff; box-shadow:4px 0 18px rgba(0,0,0,.12); z-index:1041; padding-top:0; overflow-y:auto; border-top-right-radius:16px; border-bottom-right-radius:16px; transition:width .25s ease; }
+        body.sidebar-collapsed .sidebar { width:80px; }
+        body.sidebar-collapsed .content-wrapper { margin-left:80px; }
+        @media (min-width:992px){ .navbar{ padding-left:260px; } body.sidebar-collapsed .navbar{ padding-left:80px; } }
+        body.sidebar-collapsed .sidebar .brand-name { display:none; }
+        body.sidebar-collapsed .sidebar .menu a { justify-content:center; }
+        body.sidebar-collapsed .sidebar .menu a .label { display:none; }
+        body.sidebar-collapsed .sidebar .menu a .icon { margin-right:0; }
+        body.sidebar-collapsed .sidebar-header { justify-content:center; }
+        body.sidebar-collapsed .sidebar-header .brand-logo { height:28px; }
+        @media (max-width:991.98px){ body.sidebar-collapsed .sidebar{ width:260px; } body.sidebar-collapsed .content-wrapper{ margin-left:0; } }
+        .sidebar-header { display:flex; align-items:center; gap:10px; padding:.2rem .9rem .65rem; margin-bottom:.1rem; border-bottom:1px dashed rgba(255,255,255,.25); position:sticky; top:0; z-index:1; background:linear-gradient(180deg, #2e59d9 0%, rgba(46,89,217,.92) 70%); }
+        .brand-logo { height:42px; width:auto; object-fit:contain; filter:brightness(0) invert(1); }
+        .brand-name { font-weight:700; font-size:1.3rem; line-height:1.2; }
+        .sidebar-collapse-btn { margin-left:auto; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.35); color:#fff; width:34px; height:34px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; }
+        .sidebar-collapse-btn i { transition: transform .25s ease; }
+        .sidebar .menu { list-style:none; margin:0; padding:.5rem .75rem; }
+        .sidebar .menu li { margin-bottom:.35rem; }
+        .sidebar .menu a { position:relative; display:flex; align-items:center; gap:12px; padding:.65rem .9rem; color:rgba(255,255,255,.95); text-decoration:none; border-radius:12px; transition: background .2s ease, transform .2s ease, color .2s ease; }
+        .sidebar .menu a:hover { background:rgba(255,255,255,.10); transform:translateX(3px); }
+        .sidebar .menu a.active { background:rgba(255,255,255,.16); box-shadow: inset 0 0 0 1px rgba(255,255,255,.20); }
+        .sidebar .menu a.active::before { content:""; position:absolute; left:-6px; top:10px; bottom:10px; width:3px; border-radius:3px; background:#fff; }
+        .sidebar .menu a .icon { width:22px; min-width:22px; text-align:center; opacity:.95; }
+        .sidebar::-webkit-scrollbar { width:8px; } .sidebar::-webkit-scrollbar-track{ background:rgba(255,255,255,.08); border-radius:8px; } .sidebar::-webkit-scrollbar-thumb{ background:rgba(0,0,0,.25); border-radius:8px; } .sidebar::-webkit-scrollbar-thumb:hover{ background:rgba(0,0,0,.35); }
+        .content-wrapper { margin-left:260px; transition: margin-left .25s ease; padding-top:56px; }
+        @media (max-width:991.98px){ .sidebar{ transform:translateX(-100%); transition: transform .25s ease; } .sidebar.open{ transform:translateX(0); } .content-wrapper{ margin-left:0; padding-top:56px; } .content-wrapper.shifted{ margin-left:260px; } }
+        .sidebar-overlay { position:fixed; inset:0; background:rgba(0,0,0,.25); z-index:1015; display:none; }
+        .sidebar-overlay.show { display:block; }
+        /* User avatar */
+        .avatar { width:48px; height:48px; border-radius:50%; background:rgba(255,255,255,.15); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:700; letter-spacing:.5px; text-transform:uppercase; border:1px solid rgba(255,255,255,.35); user-select:none; }
+        .avatar-btn.dropdown-toggle::after { display:none; }
+        .avatar-menu .dropdown-menu { min-width:220px; }
+        .avatar-menu .dropdown-header { font-weight:600; }
+        .avatar-menu .badge { font-size:.7rem; }
+        /* Cards */
+        .modern-card { background:#fff; border-radius:16px; padding:1.25rem; box-shadow:0 6px 18px rgba(0,0,0,.08); }
+        .rounded-table { border:1px solid #e9ecef; border-radius:12px; overflow:hidden; }
+        .add-room-card { background:#fff; border-radius:16px; padding:1rem; box-shadow:0 6px 18px rgba(0,0,0,.06); margin-top:1rem; }
+        .pill-input { border-radius:9999px !important; padding:.6rem 1rem; }
+        .pill-select { border-radius:9999px !important; padding:.55rem 1rem; }
+        .pill-btn { border-radius:9999px !important; padding:.55rem 1.1rem; }
+        .hidden{ display:none !important; }
+    </style>
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container-fluid">
+            <button class="btn btn-outline-light btn-sm me-2 d-lg-none" type="button" onclick="toggleSidebar()" title="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="search-center d-flex">
+                <div class="search-box">
+                    <i class="fas fa-search icon-left"></i>
+                    <input type="text" placeholder="Search rooms...">
+                    <i class="fas fa-sliders-h icon-right"></i>
+                </div>
+            </div>
+            <div class="navbar-nav ms-auto align-items-center avatar-menu">
+                <div class="dropdown">
+                    <button class="btn avatar-btn p-0" type="button" id="avatarDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Account">
+                        <div class="avatar" id="navAvatar">SA</div>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="avatarDropdown">
+                        <li><h6 class="dropdown-header" id="avatarUsername">Super Admin</h6></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="settings.html"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                    
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="appSidebar">
+        <div class="sidebar-header">
+            <img src="image/logoe.png" alt="Smart Hotel Logo" class="brand-logo">
+            <span class="brand-name">Smart Hotel</span>
+            <button class="btn sidebar-collapse-btn d-none d-lg-inline-flex" type="button" onclick="toggleSidebarCollapsed()" title="Collapse/Expand">
+                <i class="fas fa-angles-left"></i>
+            </button>
+        </div>
+        <ul class="menu">
+            <li><a href="dashboard.html"><span class="icon"><i class="fas fa-gauge"></i></span><span class="label">Dashboard</span></a></li>
+            <li><a href="rooms.html" class="active"><span class="icon"><i class="fas fa-bed"></i></span><span class="label">Rooms</span></a></li>
+            <li><a href="bookings.html"><span class="icon"><i class="fas fa-calendar-check"></i></span><span class="label">Bookings</span></a></li>
+            <li><a href="clients.html"><span class="icon"><i class="fas fa-users"></i></span><span class="label">Clients</span></a></li>
+            <li><a href="employees.html"><span class="icon"><i class="fas fa-user-tie"></i></span><span class="label">Employees</span></a></li>
+            <li><a href="reports.html"><span class="icon"><i class="fas fa-chart-line"></i></span><span class="label">Reports</span></a></li>
+            <li><a href="contact.html"><span class="icon"><i class="fas fa-envelope"></i></span><span class="label">Contact</span></a></li>
+            <li><a href="settings.html"><span class="icon"><i class="fas fa-cog"></i></span><span class="label">Settings</span></a></li>
+        </ul>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <div class="content-wrapper" id="contentWrapper">
+        <div class="container mt-4">
+            <div class="modern-card">
+                <div class="d-flex align-items-center mb-2">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-bed me-2"></i>Rooms</h5>
+                    <div class="ms-auto d-flex align-items-center">
+                        <a href="#" class="btn btn-sm btn-danger rounded-pill me-2" onclick="exportRoomsToPDF();return false;"><i class="fas fa-file-pdf me-1"></i> PDF</a>
+                        <a href="#" class="btn btn-sm btn-success rounded-pill" onclick="exportRoomsToExcel();return false;"><i class="fas fa-file-excel me-1"></i> Excel</a>
+                        <button type="button" class="btn btn-sm btn-outline-info rounded-pill ms-2 me-2" data-bs-toggle="modal" data-bs-target="#reportModal">
+                            <i class="fas fa-flag me-1"></i> Reports
+                        </button>
+                        <a href="#" class="btn btn-sm btn-primary rounded-pill" onclick="toggleAddRoom();return false;"><i class="fas fa-plus me-1"></i> Add Room</a>
+                    </div>
+                </div>
+                <div class="table-responsive rounded-table">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Room Code</th>
+                                <th>Room No</th>
+                                <th>Type</th>
+                                <th>Capacity</th>
+                                <th>Price</th>
+                                <th>Section</th>
+                                <th>Employee ID</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="roomsTableBody">
+                            <tr id="roomsLoading">
+                                <td colspan="10" class="text-center py-4">
+                                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                    Loading rooms...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="addRoomCard" class="add-room-card hidden">
+                <h6 class="mb-3"><i class="fas fa-bed me-2"></i>Add New Room - Dual Table Insert</h6>
+                
+                <!-- Basic Room Information (rooms table) -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-primary">Basic Room Information</label>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <input type="text" id="roomNumber" class="form-control pill-input" placeholder="Room number *" required>
+                        <input type="text" id="roomCode" class="form-control pill-input" placeholder="Room code (e.g., A-101)">
+                        <select id="roomType" class="form-select pill-select">
+                            <option value="">Select room type *</option>
+                            <option value="Standard">Standard</option>
+                            <option value="Deluxe">Deluxe</option>
+                            <option value="Suite">Suite</option>
+                            <option value="VIP">VIP</option>
+                        </select>
+                        <select id="roomCapacity" class="form-select pill-select">
+                            <option value="">Select capacity *</option>
+                            <option value="Single">Single</option>
+                            <option value="Double">Double</option>
+                            <option value="Family">Family</option>
+                            <option value="Suite">Suite</option>
+                        </select>
+                        <input type="text" id="roomSection" class="form-control pill-input" placeholder="Section (e.g., A, B, C)">
+                        <select id="roomAssignedEmployee" class="form-select pill-select">
+                            <option value="">Assign to employee (optional)</option>
+                        </select>
+                        <select id="roomStatus" class="form-select pill-select">
+                            <option value="Available">Available</option>
+                            <option value="Reserved">Reserved</option>
+                            <option value="Occupied">Occupied</option>
+                            <option value="Maintenance">Maintenance</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Detailed Room Information (room_full_details table) -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-success">Detailed Room Information</label>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <input type="number" id="roomPrice" class="form-control pill-input" placeholder="Price per night *" step="0.01" min="0" required>
+                        <input type="number" id="roomFloor" class="form-control pill-input" placeholder="Floor number *" min="1" required>
+                        <select id="roomView" class="form-select pill-select">
+                            <option value="">Select view *</option>
+                            <option value="City">City View</option>
+                            <option value="Garden">Garden View</option>
+                            <option value="Sea">Sea View</option>
+                            <option value="Pool">Pool View</option>
+                        </select>
+                        <input type="text" id="roomFeatures" class="form-control pill-input" placeholder="Features (comma separated)" 
+                               title="Example: Air Conditioning, TV, WiFi, Balcony">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <small class="text-muted">* Required fields. Data will be saved to both 'rooms' and 'room_full_details' tables.</small>
+                    <div>
+                        <button class="btn btn-secondary pill-btn me-2" onclick="resetDualRoomForm()">
+                            <i class="fas fa-undo me-1"></i> Reset
+                        </button>
+                        <button class="btn btn-primary pill-btn" onclick="submitDualAddRoom()">
+                            <i class="fas fa-plus me-1"></i> Add Room (Dual Insert)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportModalLabel"><i class="fas fa-flag me-2"></i>Create Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reportForm" class="row g-3">
+                        <div class="col-md-6">
+                            <label for="reportRoomSelect" class="form-label">Room</label>
+                            <select id="reportRoomSelect" class="form-select" required>
+                                <option value="">Select room...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="reportEmployeeSelect" class="form-label">Employee</label>
+                            <select id="reportEmployeeSelect" class="form-select" required>
+                                <option value="">Select employee...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="reportPriority" class="form-label">Priority</label>
+                            <select id="reportPriority" class="form-select" required>
+                                <option value="urgent">Urgent</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="reportStatus" class="form-label">Status</label>
+                            <select id="reportStatus" class="form-select" required>
+                                <option value="open" selected>Open</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="reportTitle" class="form-label">Title</label>
+                            <input type="text" id="reportTitle" class="form-control" placeholder="Report title" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="reportDescription" class="form-label">Description</label>
+                            <textarea id="reportDescription" class="form-control" rows="4" placeholder="Describe the issue..." required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitReportBtn"><i class="fas fa-paper-plane me-1"></i> Submit Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.1/dist/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        // Auth check (same as Employees)
+        checkAuthentication();
+        async function checkAuthentication(){
+            try{
+                const response = await fetch('../backend/check_super_admin_session.php');
+                const data = await response.json();
+                if(!data.authenticated){ window.location.href='login.html'; return; }
+                const username = (data.user && data.user.username) ? String(data.user.username) : 'User';
+                const initials = username.split(/\s+|_/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+                const avatarEl = document.getElementById('navAvatar');
+                if(avatarEl){ avatarEl.textContent = initials || 'U'; avatarEl.title = username; }
+                const avatarUsername = document.getElementById('avatarUsername');
+                if(avatarUsername) avatarUsername.textContent = username;
+            }catch(e){ console.error('Authentication check failed:', e); window.location.href='login.html'; }
+        }
+
+        // Sidebar controls (same as Employees)
+        function toggleSidebar(){
+            const sidebar = document.getElementById('appSidebar');
+            const content = document.getElementById('contentWrapper');
+            const overlay = document.getElementById('sidebarOverlay');
+            if(!sidebar||!content) return;
+            sidebar.classList.toggle('open');
+            content.classList.toggle('shifted');
+            if(overlay) overlay.classList.toggle('show');
+        }
+        function closeSidebar(){
+            const sidebar = document.getElementById('appSidebar');
+            const content = document.getElementById('contentWrapper');
+            const overlay = document.getElementById('sidebarOverlay');
+            if(!sidebar||!content) return;
+            sidebar.classList.remove('open');
+            content.classList.remove('shifted');
+            if(overlay) overlay.classList.remove('show');
+        }
+        function applySidebarCollapsed(collapsed){
+            document.body.classList.toggle('sidebar-collapsed', !!collapsed);
+            try{ localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0'); }catch(e){}
+        }
+        function toggleSidebarCollapsed(){
+            const collapsed = !document.body.classList.contains('sidebar-collapsed');
+            applySidebarCollapsed(collapsed);
+        }
+        (function initSidebarCollapsed(){
+            try{ const saved = localStorage.getItem('sidebarCollapsed'); if(saved==='1') applySidebarCollapsed(true); }catch(e){}
+        })();
+        function toggleAddRoom(){
+            const card = document.getElementById('addRoomCard');
+            if(!card) return;
+            const willShow = card.classList.contains('hidden');
+            card.classList.toggle('hidden');
+            if(willShow){
+                setTimeout(()=>{ document.getElementById('roomNumber')?.focus(); card.scrollIntoView({behavior:'smooth', block:'center'}); }, 50);
+            }
+        }
+        function submitAddRoom(){ addRoom(); }
+
+        // Load employees to populate assignment dropdown
+        let roomsEmployeesCache = [];
+        async function loadEmployeesForRooms(){
+            try{
+                const res = await fetch('../backend/get_employees.php');
+                const data = await res.json();
+                if(!data.success) throw new Error(data.error || 'Failed to load employees');
+                const list = data.data || [];
+                roomsEmployeesCache = list.map(e=>({ id: e.id, name: `${e.first_name || ''} ${e.last_name || ''}`.trim() || e.username || (`Emp-${e.id}`) }));
+                const sel = document.getElementById('roomAssignedEmployee');
+                if(sel){
+                    const current = sel.value;
+                    sel.innerHTML = '<option value="">Assign to employee (optional)</option>' + roomsEmployeesCache.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+                    if(current) sel.value = current;
+                }
+            }catch(err){ console.error('Failed to load employees for rooms:', err); }
+        }
+
+        async function loadRooms(){
+            try{
+                const response = await fetch('../backend/get_rooms.php');
+                const data = await response.json();
+                const tbody = document.getElementById('roomsTableBody');
+                const list = data.rooms || data.data || [];
+                if(data.success && list.length > 0){
+                    tbody.innerHTML = '';
+                    list.forEach((room)=>{
+                        const statusBadge = getRoomStatusBadge(room.status);
+                        const priceVal = (room.price_per_night !== undefined && room.price_per_night !== null)
+                            ? room.price_per_night
+                            : ((room.price !== undefined && room.price !== null) ? room.price : '');
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${room.id}</td>
+                                <td>${room.room_code || room.code || ''}</td>
+                                <td>${room.room_number || room.number || ''}</td>
+                                <td>${room.room_type || room.type || ''}</td>
+                                <td>${room.capacity || ''}</td>
+                                <td>${priceVal}</td>
+                                <td>${room.section || room.assigned_section || ''}</td>
+                                <td>${(room.assigned_employee_id || room.employee_id || room.assigned_to) ? `<a class="text-decoration-none" href="employees.html?highlightEmployeeId=${room.assigned_employee_id || room.employee_id || room.assigned_to}">${room.assigned_employee_id || room.employee_id || room.assigned_to}</a>` : ''}</td>
+                                <td>${statusBadge}</td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-light border" onclick="editRoom(${room.id})" title="Edit"><i class="fas fa-pen"></i></button>
+                                    <button class="btn btn-sm btn-light border text-danger" onclick="deleteRoom(${room.id})" title="Delete"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>`;
+                    });
+                } else if (data.success && list.length === 0){
+                    tbody.innerHTML = `<tr><td colspan="10" class="text-center py-4 text-muted"><i class="fas fa-bed fa-2x mb-2"></i><br>No rooms found</td></tr>`;
+                } else {
+                    throw new Error(data.error || 'Failed to load rooms');
+                }
+            }catch(error){
+                console.error('Error loading rooms:', error);
+                document.getElementById('roomsTableBody').innerHTML = `<tr><td colspan="10" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Error loading rooms: ${error.message}</td></tr>`;
+            }
+        }
+
+        function getRoomStatusBadge(status){
+            switch((status||'').toLowerCase()){
+                case 'available': return '<span class="badge bg-success">Available</span>';
+                case 'reserved': return '<span class="badge bg-warning text-dark">Reserved</span>';
+                case 'occupied': return '<span class="badge bg-primary">Occupied</span>';
+                case 'maintenance': return '<span class="badge bg-secondary">Maintenance</span>';
+                default: return '<span class="badge bg-secondary">Unknown</span>';
+            }
+        }
+
+        async function addRoom(){
+            const btn = event?.currentTarget;
+            if(btn){ btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Adding...'; }
+            try{
+                const payload = {
+                    room_number: document.getElementById('roomNumber').value.trim(),
+                    room_code: document.getElementById('roomCode').value.trim(),
+                    type: document.getElementById('roomType').value.trim(),
+                    capacity: document.getElementById('roomCapacity').value.trim(),
+                    price: document.getElementById('roomPrice').value.trim(),
+                    floor: document.getElementById('roomFloor').value.trim(),
+                    view: document.getElementById('roomView').value.trim(),
+                    features: document.getElementById('roomFeatures').value.trim(),
+                    section: document.getElementById('roomSection').value.trim(),
+                    status: document.getElementById('roomStatus').value
+                };
+                const assignedId = document.getElementById('roomAssignedEmployee')?.value || '';
+                if(assignedId) payload.assigned_employee_id = assignedId;
+                if(!payload.room_number){ alert('Room number is required.'); return; }
+                const res = await fetch('../backend/add_room.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if(!data.success){ throw new Error(data.message || 'Add failed'); }
+                ['roomNumber','roomCode','roomType','roomCapacity','roomPrice','roomFloor','roomView','roomFeatures','roomSection'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+                if(document.getElementById('roomAssignedEmployee')) document.getElementById('roomAssignedEmployee').value='';
+                document.getElementById('roomStatus').value='available';
+                await loadRooms();
+                alert('Room added successfully.');
+            }catch(e){ console.error('Add room failed:', e); alert('Failed to add room: ' + e.message); }
+            finally{ if(btn){ btn.disabled=false; btn.innerHTML = '<i class="fas fa-plus me-1"></i> Add Room'; } }
+        }
+
+        // Edit/Delete
+        async function editRoom(id){
+            try{
+                const response = await fetch('../backend/get_rooms.php');
+                const data = await response.json();
+                if(!data.success) throw new Error('Failed to load room');
+                const list = data.rooms || data.data || [];
+                const room = list.find(r=>r.id==id);
+                if(!room){ alert('Room not found'); return; }
+                document.getElementById('roomNumber').value = room.room_number || room.number || '';
+                document.getElementById('roomCode').value = room.room_code || room.code || '';
+                document.getElementById('roomType').value = room.room_type || room.type || '';
+                document.getElementById('roomCapacity').value = room.capacity || '';
+                document.getElementById('roomPrice').value = room.price_per_night || room.price || '';
+                document.getElementById('roomFloor').value = room.floor || '';
+                document.getElementById('roomView').value = room.view || room.room_view || '';
+                document.getElementById('roomFeatures').value = room.features || room.amenities || '';
+                document.getElementById('roomSection').value = room.section || room.assigned_section || '';
+                document.getElementById('roomStatus').value = room.status || 'available';
+                const card = document.getElementById('addRoomCard');
+                const btn = card.querySelector('.btn-primary');
+                card.classList.remove('hidden');
+                btn.innerHTML = '<i class="fas fa-save me-1"></i> Update Room';
+                btn.onclick = () => updateRoom(id);
+                setTimeout(()=>{ card.scrollIntoView({behavior:'smooth', block:'center'}); document.getElementById('roomNumber').focus(); }, 100);
+            }catch(e){ console.error('Edit room error:', e); alert('Failed to load room: '+e.message); }
+        }
+
+        async function updateRoom(id){
+            const btn = event?.currentTarget; if(btn){ btn.disabled=true; btn.innerHTML='<span class="spinner-border spinner-border-sm me-1"></span>Updating...'; }
+            try{
+                const payload = {
+                    id: id,
+                    room_number: document.getElementById('roomNumber').value.trim(),
+                    room_code: document.getElementById('roomCode').value.trim(),
+                    type: document.getElementById('roomType').value.trim(),
+                    capacity: document.getElementById('roomCapacity').value.trim(),
+                    price: document.getElementById('roomPrice').value.trim(),
+                    floor: document.getElementById('roomFloor').value.trim(),
+                    view: document.getElementById('roomView').value.trim(),
+                    features: document.getElementById('roomFeatures').value.trim(),
+                    section: document.getElementById('roomSection').value.trim(),
+                    status: document.getElementById('roomStatus').value
+                };
+                const assignedId = document.getElementById('roomAssignedEmployee')?.value || '';
+                if(assignedId) payload.assigned_employee_id = assignedId;
+                const res = await fetch('../backend/edit_room.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if(!data.success){ throw new Error(data.message || 'Update failed'); }
+                resetRoomForm(); await loadRooms(); alert('Room updated successfully.');
+            }catch(e){ console.error('Update room error:', e); alert('Failed to update room: '+e.message); }
+            finally{ if(btn){ btn.disabled=false; btn.innerHTML='<i class=\"fas fa-save me-1\"></i> Update Room'; } }
+        }
+
+        function resetRoomForm(){
+            ['roomNumber','roomCode','roomType','roomCapacity','roomPrice','roomFloor','roomView','roomFeatures','roomSection'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+            document.getElementById('roomStatus').value='available';
+            if(document.getElementById('roomAssignedEmployee')) document.getElementById('roomAssignedEmployee').value='';
+            const card = document.getElementById('addRoomCard');
+            const btn = card.querySelector('.btn-primary');
+            btn.innerHTML = '<i class="fas fa-plus me-1"></i> Add Room';
+            btn.onclick = submitAddRoom; card.classList.add('hidden');
+        }
+
+        async function deleteRoom(id){
+            if(!confirm('Are you sure you want to delete this room?')) return;
+            try{
+                const res = await fetch('../backend/delete_room.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id}) });
+                const data = await res.json();
+                if(!data.success){ throw new Error(data.message || 'Delete failed'); }
+                await loadRooms(); alert('Room deleted successfully.');
+            }catch(e){ console.error('Delete room error:', e); alert('Failed to delete room: '+e.message); }
+        }
+
+        function collectRoomsTableData(){
+            const table = document.querySelector('.table'); if(!table) return [];
+            const allHeaders = Array.from(table.querySelectorAll('thead th')).map(th=>th.textContent.trim());
+            const headers = allHeaders.slice(0, allHeaders.length-1);
+            const rows=[]; const tbody=document.getElementById('roomsTableBody'); if(!tbody) return [headers];
+            Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
+                if(tr.id==='roomsLoading') return; const tds=Array.from(tr.querySelectorAll('td'));
+                const cells=tds.slice(0, tds.length-1).map(td=>td.textContent.trim()); if(cells.length) rows.push(cells);
+            });
+            return [headers, ...rows];
+        }
+        function exportRoomsToPDF(){
+            try{ const data = collectRoomsTableData(); if(!data.length || data.length===1){ alert('No rooms data to export.'); return; }
+                const { jsPDF } = window.jspdf; const doc = new jsPDF({ orientation:'p', unit:'pt', format:'a4' });
+                doc.setFontSize(16); doc.text('Rooms Report', 40, 40); doc.setFontSize(10); doc.setTextColor(100); doc.text(new Date().toLocaleString(), 40, 58);
+                doc.autoTable({ head:[data[0]], body:data.slice(1), startY:70, styles:{fontSize:9}, headStyles:{ fillColor:[78,115,223] }, theme:'striped', margin:{left:40,right:40} });
+                doc.save('rooms.pdf');
+            }catch(e){ console.error('PDF export failed:', e); alert('Failed to export PDF.'); }
+        }
+        function exportRoomsToExcel(){
+            try{ const data = collectRoomsTableData(); if(!data.length || data.length===1){ alert('No rooms data to export.'); return; }
+                const ws = XLSX.utils.aoa_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Rooms'); XLSX.writeFile(wb, 'rooms.xlsx');
+            }catch(e){ console.error('Excel export failed:', e); alert('Failed to export Excel.'); }
+        }
+
+        // Reports Modal Logic
+        let reportRoomsLoaded = false;
+        let reportEmployeesLoaded = false;
+        const reportModalEl = document.getElementById('reportModal');
+        if(reportModalEl){
+            reportModalEl.addEventListener('show.bs.modal', async () => {
+                try{
+                    // Populate employees, and clear rooms until an employee is chosen
+                    await populateReportEmployees();
+                    const roomSel = document.getElementById('reportRoomSelect');
+                    if(roomSel){ roomSel.innerHTML = '<option value="">Select employee first...</option>'; }
+                }catch(err){ console.error('Failed to prepare report modal:', err); }
+            });
+        }
+
+        async function populateReportRooms(){
+            const sel = document.getElementById('reportRoomSelect');
+            if(!sel) return;
+            if(reportRoomsLoaded && sel.options.length > 1) return;
+            sel.innerHTML = '<option value="">Loading rooms...</option>';
+            try{
+                const res = await fetch('../backend/get_rooms.php');
+                const data = await res.json();
+                const list = (data.rooms || data.data || []).map(r=>({ id: r.id, label: `#${r.id} - ${r.room_number || r.number || ''} (${r.room_type || r.type || 'Room'})` }));
+                sel.innerHTML = '<option value="">Select room...</option>' + list.map(r=>`<option value="${r.id}">${r.label}</option>`).join('');
+                reportRoomsLoaded = true;
+            }catch(e){
+                console.error('Load rooms for report failed:', e);
+                sel.innerHTML = '<option value="">Failed to load rooms</option>';
+            }
+        }
+
+        async function populateReportEmployees(){
+            const sel = document.getElementById('reportEmployeeSelect');
+            if(!sel) return;
+            if(reportEmployeesLoaded && sel.options.length > 1) return;
+            sel.innerHTML = '<option value="">Loading employees...</option>';
+            try{
+                const res = await fetch('../backend/get_employees.php');
+                const data = await res.json();
+                if(!data.success) throw new Error(data.error || 'Failed to load employees');
+                const list = (data.data || []).map(e=>({ id: e.id, name: `${e.first_name || ''} ${e.last_name || ''}`.trim() || e.username || `Emp-${e.id}` }));
+                sel.innerHTML = '<option value="">Select employee...</option>' + list.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+                reportEmployeesLoaded = true;
+            }catch(e){
+                console.error('Load employees for report failed:', e);
+                sel.innerHTML = '<option value="">Failed to load employees</option>';
+            }
+        }
+
+        // When employee changes, load rooms assigned to that employee
+        document.getElementById('reportEmployeeSelect')?.addEventListener('change', async (ev)=>{
+            const empId = ev.target.value;
+            await populateReportRoomsForEmployee(empId);
+        });
+
+        async function populateReportRoomsForEmployee(employeeId){
+            const sel = document.getElementById('reportRoomSelect');
+            if(!sel) return;
+            if(!employeeId){ sel.innerHTML = '<option value="">Select employee first...</option>'; return; }
+            sel.innerHTML = '<option value="">Loading rooms...</option>';
+            try{
+                // Prefer dedicated endpoint (more robust across schema variants)
+                const res1 = await fetch(`../backend/get_employee_rooms.php?employee_id=${encodeURIComponent(employeeId)}`);
+                const data1 = await res1.json();
+                let list = (data1.rooms || (data1.data && data1.data.rooms) || data1.data || []).map(r=>({ id: r.id, label: `#${r.id} - ${r.room_number || r.number || ''} (${r.room_type || r.type || 'Room'})` }));
+                if(!list.length){
+                    console.warn('get_employee_rooms.php returned no rooms for employee', employeeId, data1);
+                    // Fallback to get_rooms.php with employee filter and debug
+                    const res2 = await fetch(`../backend/get_rooms.php?employee_id=${encodeURIComponent(employeeId)}&debug=1`);
+                    const data2 = await res2.json();
+                    console.warn('get_rooms.php debug:', data2?.debug);
+                    list = (data2.rooms || data2.data || []).map(r=>({ id: r.id, label: `#${r.id} - ${r.room_number || r.number || ''} (${r.room_type || r.type || 'Room'})` }));
+                }
+                if(!list.length){ sel.innerHTML = '<option value="">No rooms assigned to this employee</option>'; return; }
+                sel.innerHTML = '<option value="">Select room...</option>' + list.map(r=>`<option value="${r.id}">${r.label}</option>`).join('');
+            }catch(e){
+                console.error('Load employee rooms failed:', e);
+                sel.innerHTML = '<option value="">Failed to load rooms</option>';
+            }
+        }
+
+        document.getElementById('submitReportBtn')?.addEventListener('click', submitReportForm);
+
+        async function submitReportForm(){
+            const btn = document.getElementById('submitReportBtn');
+            const roomId = document.getElementById('reportRoomSelect').value;
+            const employeeId = document.getElementById('reportEmployeeSelect').value;
+            const priority = document.getElementById('reportPriority').value;
+            const title = document.getElementById('reportTitle').value.trim();
+            const description = document.getElementById('reportDescription').value.trim();
+            const status = document.getElementById('reportStatus').value;
+
+            if(!roomId || !employeeId || !title || !description){
+                alert('Please fill in all required fields.');
+                return;
+            }
+            try{
+                btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Submitting...';
+                const res = await fetch('../backend/add_report.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        room_id: Number(roomId),
+                        employee_id: Number(employeeId),
+                        priority,
+                        title,
+                        description,
+                        status
+                    })
+                });
+                const data = await res.json();
+                if(!data.success){ throw new Error(data.message || 'Failed to create report'); }
+                alert('Report created successfully.');
+                // Reset form
+                document.getElementById('reportForm').reset();
+                document.getElementById('reportPriority').value = 'medium';
+                document.getElementById('reportStatus').value = 'open';
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(reportModalEl) || new bootstrap.Modal(reportModalEl);
+                modal.hide();
+            }catch(e){
+                console.error('Create report failed:', e);
+                alert('Failed to create report: ' + e.message);
+            }finally{
+                btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane me-1"></i> Submit Report';
+            }
+        }
+
+        // Dual Room Insert Functions
+        async function submitDualAddRoom(){
+            const btn = event?.currentTarget;
+            if(btn){ 
+                btn.disabled = true; 
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Adding to both tables...'; 
+            }
+            
+            try{
+                // Validate required fields
+                const roomNumber = document.getElementById('roomNumber').value.trim();
+                const roomType = document.getElementById('roomType').value;
+                const roomCapacity = document.getElementById('roomCapacity').value;
+                const roomPrice = document.getElementById('roomPrice').value;
+                const roomFloor = document.getElementById('roomFloor').value;
+                const roomView = document.getElementById('roomView').value;
+                
+                if(!roomNumber){ 
+                    alert('Room number is required.'); 
+                    return; 
+                }
+                if(!roomType){ 
+                    alert('Room type is required.'); 
+                    return; 
+                }
+                if(!roomCapacity){ 
+                    alert('Room capacity is required.'); 
+                    return; 
+                }
+                if(!roomPrice || roomPrice <= 0){ 
+                    alert('Valid price per night is required.'); 
+                    return; 
+                }
+                if(!roomFloor || roomFloor < 1){ 
+                    alert('Valid floor number is required.'); 
+                    return; 
+                }
+                if(!roomView){ 
+                    alert('Room view is required.'); 
+                    return; 
+                }
+                
+                // Prepare payload for dual insert
+                const payload = {
+                    // Data for rooms table
+                    room_number: roomNumber,
+                    room_code: document.getElementById('roomCode').value.trim(),
+                    room_type: roomType,
+                    capacity: roomCapacity,
+                    section: document.getElementById('roomSection').value.trim(),
+                    status: document.getElementById('roomStatus').value,
+                    employee_id: document.getElementById('roomAssignedEmployee')?.value || null,
+                    
+                    // Data for room_full_details table
+                    price_per_night: parseFloat(roomPrice),
+                    floor: parseInt(roomFloor),
+                    view: roomView,
+                    features: document.getElementById('roomFeatures').value.trim()
+                };
+                
+                console.log('Sending dual insert payload:', payload);
+                
+                const res = await fetch('../backend/add_room_dual.php', { 
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify(payload) 
+                });
+                
+                const data = await res.json();
+                console.log('Dual insert response:', data);
+                
+                if(!data.success){ 
+                    throw new Error(data.error || 'Dual insert failed'); 
+                }
+                
+                // Clear form and reload rooms
+                resetDualRoomForm();
+                await loadRooms();
+                
+                // Show success message with details
+                alert(`Room added successfully!\n\nRoom ID: ${data.room_id}\nSaved to both tables:\n- rooms table: Basic info\n- room_full_details table: Detailed info`);
+                
+            }catch(e){ 
+                console.error('Dual add room failed:', e); 
+                alert('Failed to add room to both tables: ' + e.message); 
+            }
+            finally{ 
+                if(btn){ 
+                    btn.disabled = false; 
+                    btn.innerHTML = '<i class="fas fa-plus me-1"></i> Add Room (Dual Insert)'; 
+                } 
+            }
+        }
+        
+        function resetDualRoomForm(){
+            // Clear all form fields
+            const fieldIds = [
+                'roomNumber', 'roomCode', 'roomType', 'roomCapacity', 
+                'roomSection', 'roomPrice', 'roomFloor', 'roomView', 'roomFeatures'
+            ];
+            
+            fieldIds.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.value = '';
+            });
+            
+            // Reset selects to default values
+            document.getElementById('roomType').value = '';
+            document.getElementById('roomCapacity').value = '';
+            document.getElementById('roomView').value = '';
+            document.getElementById('roomStatus').value = 'Available';
+            if(document.getElementById('roomAssignedEmployee')) {
+                document.getElementById('roomAssignedEmployee').value = '';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function(){
+            loadEmployeesForRooms();
+            loadRooms();
+        });
+    </script>
+</body>
+</html>

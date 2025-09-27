@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Custom colors -->
+    <color name="button_color">#4E73DF</color>
+    <color name="text_color">#2D3748</color>
+    <color name="background_color">#F8F9FC</color>
+    <!-- Added for Add Client screen theme -->
+    <color name="primary_color">#8f63c1</color>
+    <color name="background_light">#F8F9FC</color>
+    <color name="text_primary">#2D3748</color>
+    <color name="text_secondary">#6B7280</color>
+
+    <!-- Notification colors -->
+    <color name="gray">#757575</color>
+    <color name="gray_light">#BDBDBD</color>
+    <color name="red">#FF5252</color>
+    <color name="green">#4CAF50</color>
+    <color name="orange">#FF9800</color>
+    <color name="blue">#2196F3</color>
+
+    <!-- Bottom Navigation Colors -->
+    <color name="nav_item_active">#4E73DF</color>
+    <color name="nav_item_inactive">#333333</color>
+    <color name="nav_text_active">#4E73DF</color>
+    <color name="nav_text_inactive">#333333</color>
+    <color name="app_blue">#4E73DF</color>
+</resources>

@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employees - Smart Hotel</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts - Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Shared Layout Styles -->
+    <link href="assets/layout.css" rel="stylesheet">
+    <style>
+        :root { --primary-color:#4e73df; --secondary-color:#1cc88a; --danger-color:#e74a3b; --warning-color:#f6c23e; --info-color:#36b9cc; --light-color:#f8f9fc; --dark-color:#5a5c69; }
+        body { font-family:'Cairo',sans-serif; background-color:var(--light-color); min-height:100vh; }
+        .navbar { background:linear-gradient(135deg, var(--primary-color) 0%, #2e59d9 100%); box-shadow:0 2px 10px rgba(0,0,0,.1); }
+        .navbar .search-center { position:absolute; left:50%; transform:translateX(-50%); width:min(640px, calc(100% - 360px)); display:flex; align-items:center; gap:8px; }
+        .navbar .container-fluid { position:relative; }
+        .navbar .search-center .search-box { position:relative; width:100%; }
+        .navbar .search-center .search-box input { width:100%; height:38px; border-radius:9999px; border:none; outline:none; padding:0 44px; background:rgba(255,255,255,.9); color:#1b1e23; box-shadow: inset 0 0 0 1px rgba(255,255,255,.65), 0 4px 10px rgba(0,0,0,.12); }
+        .navbar .search-center .search-box .icon-left, .navbar .search-center .search-box .icon-right { position:absolute; top:50%; transform:translateY(-50%); color:#6b7280; }
+        .navbar .search-center .search-box .icon-left { left:14px; }
+        .navbar .search-center .search-box .icon-right { right:12px; }
+        @media (max-width:576px){ .navbar .search-center{ width:75%; } .navbar .search-center .search-box input{ height:34px; } }
+        /* Sidebar */
+        .sidebar { position:fixed; top:0; left:0; height:100vh; width:260px; background:linear-gradient(180deg, #2e59d9 0%, var(--primary-color) 65%); color:#fff; box-shadow:4px 0 18px rgba(0,0,0,.12); z-index:1041; padding-top:0; overflow-y:auto; border-top-right-radius:16px; border-bottom-right-radius:16px; transition:width .25s ease; }
+        body.sidebar-collapsed .sidebar { width:80px; }
+        body.sidebar-collapsed .content-wrapper { margin-left:80px; }
+        @media (min-width:992px){ .navbar{ padding-left:260px; } body.sidebar-collapsed .navbar{ padding-left:80px; } }
+        body.sidebar-collapsed .sidebar .brand-name { display:none; }
+        body.sidebar-collapsed .sidebar .menu a { justify-content:center; }
+        body.sidebar-collapsed .sidebar .menu a .label { display:none; }
+        body.sidebar-collapsed .sidebar .menu a .icon { margin-right:0; }
+        body.sidebar-collapsed .sidebar-header { justify-content:center; }
+        body.sidebar-collapsed .sidebar-header .brand-logo { height:28px; }
+        @media (max-width:991.98px){ body.sidebar-collapsed .sidebar{ width:260px; } body.sidebar-collapsed .content-wrapper{ margin-left:0; } }
+        .sidebar-header { display:flex; align-items:center; gap:10px; padding:.2rem .9rem .65rem; margin-bottom:.1rem; border-bottom:1px dashed rgba(255,255,255,.25); position:sticky; top:0; z-index:1; background:linear-gradient(180deg, #2e59d9 0%, rgba(46,89,217,.92) 70%); }
+        .brand-logo { height:42px; width:auto; object-fit:contain; filter:brightness(0) invert(1); }
+        .brand-name { font-weight:700; font-size:1.3rem; line-height:1.2; }
+        .sidebar-collapse-btn { margin-left:auto; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.35); color:#fff; width:34px; height:34px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; }
+        .sidebar-collapse-btn i { transition: transform .25s ease; }
+        body.sidebar-collapsed .sidebar-collapse-btn i { transform:rotate(180deg); }
+        .sidebar .menu { list-style:none; margin:0; padding:.5rem .75rem; }
+        .sidebar .menu li { margin-bottom:.35rem; }
+        .sidebar .menu a { position:relative; display:flex; align-items:center; gap:12px; padding:.65rem .9rem; color:rgba(255,255,255,.95); text-decoration:none; border-radius:12px; transition: background .2s ease, transform .2s ease, color .2s ease; }
+        .sidebar .menu a:hover { background:rgba(255,255,255,.10); transform:translateX(3px); }
+        .sidebar .menu a.active { background:rgba(255,255,255,.16); box-shadow: inset 0 0 0 1px rgba(255,255,255,.20); }
+        .sidebar .menu a.active::before { content:""; position:absolute; left:-6px; top:10px; bottom:10px; width:3px; border-radius:3px; background:#fff; }
+        .sidebar .menu a .icon { width:22px; min-width:22px; text-align:center; opacity:.95; }
+        .sidebar::-webkit-scrollbar { width:8px; } .sidebar::-webkit-scrollbar-track{ background:rgba(255,255,255,.08); border-radius:8px; } .sidebar::-webkit-scrollbar-thumb{ background:rgba(0,0,0,.25); border-radius:8px; } .sidebar::-webkit-scrollbar-thumb:hover{ background:rgba(0,0,0,.35); }
+        .content-wrapper { margin-left:260px; transition: margin-left .25s ease; padding-top:56px; }
+        @media (max-width:991.98px){ .sidebar{ transform:translateX(-100%); transition: transform .25s ease; } .sidebar.open{ transform:translateX(0); } .content-wrapper{ margin-left:0; padding-top:56px; } .content-wrapper.shifted{ margin-left:260px; } }
+        .sidebar-overlay { position:fixed; inset:0; background:rgba(0,0,0,.25); z-index:1015; display:none; }
+        .sidebar-overlay.show { display:block; }
+        /* User avatar */
+        .avatar { width:48px; height:48px; border-radius:50%; background:rgba(255,255,255,.15); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:700; letter-spacing:.5px; text-transform:uppercase; border:1px solid rgba(255,255,255,.35); user-select:none; }
+        .avatar-btn.dropdown-toggle::after { display:none; }
+        .avatar-menu .dropdown-menu { min-width:220px; }
+        .avatar-menu .dropdown-header { font-weight:600; }
+        .avatar-menu .badge { font-size:.7rem; }
+        /* Card styles for Employees list page */
+        .modern-card { background:#fff; border-radius:16px; padding:1.25rem; box-shadow:0 6px 18px rgba(0,0,0,.08); }
+        .modern-card .card-title { font-weight:700; margin-bottom:1rem; }
+        .chip-header { display:flex; align-items:center; gap:10px; padding:6px 12px; background:#f8f9fc; border:1px solid #e9ecef; border-radius:9999px; }
+        .chip-header .chip-title { margin:0; font-size:1rem; font-weight:700; display:flex; align-items:center; gap:8px; }
+        .chip-header .chip-spacer { flex:1; }
+        .rounded-table { border:1px solid #e9ecef; border-radius:12px; overflow:hidden; }
+        .rounded-table .table { margin-bottom:0; }
+        .rounded-table thead th { background:#f8f9fc; }
+        .rounded-table tbody tr:hover { background-color:#f7f9ff; }
+        /* Add Employee pill form */
+        .add-employee-card { background:#fff; border-radius:16px; padding:1rem; box-shadow:0 6px 18px rgba(0,0,0,.06); margin-top:1rem; }
+        .pill-input { border-radius:9999px !important; padding:.6rem 1rem; }
+        .pill-select { border-radius:9999px !important; padding:.55rem 1rem; }
+        .pill-btn { border-radius:9999px !important; padding:.55rem 1.1rem; }
+        .form-hint { font-size:.85rem; color:#6c757d; }
+        .hidden { display:none !important; }
+        /* Reduce rounded corners for Tasks Description field */
+        #tasksFormCard #taskDescription { border-radius:12px !important; }
+    </style>
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container-fluid">
+            <button class="btn btn-outline-light btn-sm me-2 d-lg-none" type="button" onclick="toggleSidebar()" title="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="search-center d-flex">
+                <div class="search-box">
+                    <i class="fas fa-search icon-left"></i>
+                    <input type="text" placeholder="Search employees...">
+                    <i class="fas fa-sliders-h icon-right"></i>
+                </div>
+            </div>
+            <div class="navbar-nav ms-auto align-items-center avatar-menu">
+                <div class="dropdown">
+                    <button class="btn avatar-btn p-0" type="button" id="avatarDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Account">
+                        <div class="avatar" id="navAvatar">SA</div>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="avatarDropdown">
+                        <li><h6 class="dropdown-header" id="avatarUsername">Super Admin</h6></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="settings.html"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                      
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="appSidebar">
+        <div class="sidebar-header">
+            <img src="image/logoe.png" alt="Smart Hotel Logo" class="brand-logo">
+            <span class="brand-name">Smart Hotel</span>
+            <button class="btn sidebar-collapse-btn d-none d-lg-inline-flex" type="button" onclick="toggleSidebarCollapsed()" title="Collapse/Expand">
+                <i class="fas fa-angles-left"></i>
+            </button>
+        </div>
+        <ul class="menu">
+            <li><a href="dashboard.html"><span class="icon"><i class="fas fa-gauge"></i></span><span class="label">Dashboard</span></a></li>
+            <li><a href="rooms.html"><span class="icon"><i class="fas fa-bed"></i></span><span class="label">Rooms</span></a></li>
+            <li><a href="bookings.html"><span class="icon"><i class="fas fa-calendar-check"></i></span><span class="label">Bookings</span></a></li>
+            <li><a href="clients.html"><span class="icon"><i class="fas fa-users"></i></span><span class="label">Clients</span></a></li>
+            <li><a href="#" class="active"><span class="icon"><i class="fas fa-user-tie"></i></span><span class="label">Employees</span></a></li>
+            <li><a href="reports.html"><span class="icon"><i class="fas fa-chart-line"></i></span><span class="label">Reports</span></a></li>
+            <li><a href="contact.html"><span class="icon"><i class="fas fa-envelope"></i></span><span class="label">Contact</span></a></li>
+            <li><a href="settings.html"><span class="icon"><i class="fas fa-cog"></i></span><span class="label">Settings</span></a></li>
+            
+        </ul>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- Content -->
+    <div class="content-wrapper" id="contentWrapper">
+        <div class="container mt-4">
+            <!-- Employees Card -->
+            <div class="modern-card">
+                <div class="chip-header mb-2">
+                    <h5 class="chip-title mb-0"><i class="fas fa-user-tie"></i><span>Employees</span></h5>
+                    <div class="chip-spacer"></div>
+                    <div class="chip-actions">
+                        <a href="#" class="btn btn-sm btn-danger rounded-pill me-2" onclick="exportEmployeesToPDF();return false;"><i class="fas fa-file-pdf me-1"></i> PDF</a>
+                        <a href="#" class="btn btn-sm btn-success rounded-pill" onclick="exportEmployeesToExcel();return false;"><i class="fas fa-file-excel me-1"></i> Excel</a>
+
+                        <a href="#" class="btn btn-sm btn-primary rounded-pill ms-2" onclick="toggleAddEmployee();return false;"><i class="fas fa-plus me-1"></i> Add Employee</a>
+                    </div>
+                </div>
+                <div class="table-responsive rounded-table">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Section</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Password</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeesTableBody">
+                            <tr id="employeesLoading">
+                                <td colspan="9" class="text-center py-4">
+                                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                    Loading employees...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tasks Inline Form (appears under the table) -->
+                <div id="tasksFormCard" class="add-employee-card hidden mt-3">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <div class="row g-2 w-100">
+                            <div class="col-12 col-sm-6">
+                                <label for="taskEmployee" class="form-label mb-1">Employee</label>
+                                <select id="taskEmployee" class="form-select pill-select" required></select>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <label for="taskStatus" class="form-label mb-1">Status</label>
+                                <select id="taskStatus" class="form-select pill-select" required>
+                                    <option value="pending" selected>pending</option>
+                                    <option value="in_progress">in_progress</option>
+                                    <option value="done">done</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                        <div class="col-12">
+                            <label for="taskTitle" class="form-label mb-1">Title</label>
+                            <input type="text" id="taskTitle" class="form-control pill-input" maxlength="255" placeholder="Task title" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="taskDescription" class="form-label mb-1">Description</label>
+                            <textarea id="taskDescription" class="form-control pill-input" rows="4" placeholder="Task description" required></textarea>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-2">
+                        <button class="btn btn-primary pill-btn" onclick="submitTask(event)"><i class="fas fa-save me-1"></i> Save Task</button>
+                    </div>
+                    <div class="form-hint mt-2">This form corresponds to the tasks table (employee_id, title, description, status).</div>
+                </div>
+            </div>
+            <!-- Add Employee (rounded pill) -->
+            <div id="addEmployeeCard" class="add-employee-card hidden">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <div class="row g-2 w-100">
+                        <div class="col-12 col-sm-6">
+                            <input type="text" id="empFirstName" class="form-control pill-input" placeholder="First name">
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <input type="text" id="empLastName" class="form-control pill-input" placeholder="Last name">
+                        </div>
+                    </div>
+                    <input type="text" id="empUsername" class="form-control pill-input" placeholder="Username">
+                    <input type="password" id="empPassword" class="form-control pill-input" placeholder="password" readonly>
+                    <input type="text" id="empPhone" class="form-control pill-input" placeholder="Phone">
+                    <input type="text" id="empDepartment" class="form-control pill-input" placeholder="Role">
+                    <input type="email" id="empEmail" class="form-control pill-input" placeholder="Email">
+                    <input type="text" id="empSection" class="form-control pill-input" placeholder="Section">
+                    <select id="empStatus" class="form-select pill-select">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="on_leave">On Leave</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+                <div class="d-flex justify-content-end mt-2">
+                    <button class="btn btn-primary pill-btn" onclick="submitAddEmployee()"><i class="fas fa-plus me-1"></i> Add Employee</button>
+                </div>
+                <div class="form-hint mt-2">Fill the fields and click Add Employee. Only existing columns in the employees table will be saved.</div>
+            </div>
+
+            <!-- Tasks Card -->
+            <div class="modern-card mt-4">
+                <div class="chip-header mb-2">
+                    <h5 class="chip-title mb-0"><i class="fas fa-tasks"></i><span>Tasks Management</span></h5>
+                    <div class="chip-spacer"></div>
+                    <div class="chip-actions">
+                        <a href="#" class="btn btn-sm btn-danger rounded-pill me-2" onclick="exportTasksToPDF();return false;"><i class="fas fa-file-pdf me-1"></i> PDF</a>
+                        <a href="#" class="btn btn-sm btn-success rounded-pill" onclick="exportTasksToExcel();return false;"><i class="fas fa-file-excel me-1"></i> Excel</a>
+                        <a href="#" class="btn btn-sm btn-primary rounded-pill ms-2" onclick="toggleAddTask();return false;"><i class="fas fa-plus me-1"></i> Add Task</a>
+                    </div>
+                </div>
+                <div class="table-responsive rounded-table">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Employee</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Created At</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasksTableBody">
+                            <tr id="tasksLoading">
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                    Loading tasks...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Add Task Form (appears under the table) -->
+                <div id="addTaskCard" class="add-employee-card hidden mt-3">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <div class="row g-2 w-100">
+                            <div class="col-12 col-sm-6">
+                                <label for="newTaskEmployee" class="form-label mb-1">Employee</label>
+                                <select id="newTaskEmployee" class="form-select pill-select" required></select>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <label for="newTaskStatus" class="form-label mb-1">Status</label>
+                                <select id="newTaskStatus" class="form-select pill-select" required>
+                                    <option value="pending" selected>Pending</option>
+                                    <option value="in_progress">In Progress</option>
+                                    <option value="completed">Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                        <div class="col-12">
+                            <label for="newTaskTitle" class="form-label mb-1">Title</label>
+                            <input type="text" id="newTaskTitle" class="form-control pill-input" maxlength="255" placeholder="Task title" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="newTaskDescription" class="form-label mb-1">Description</label>
+                            <textarea id="newTaskDescription" class="form-control pill-input" rows="4" placeholder="Task description" required style="border-radius:12px !important;"></textarea>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-2">
+                        <button class="btn btn-primary pill-btn" onclick="submitNewTask(event)"><i class="fas fa-save me-1"></i> Save Task</button>
+                    </div>
+                    <div class="form-hint mt-2">Fill the fields and click Save Task to add a new task.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Export libs: jsPDF + autoTable, and SheetJS for Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.1/dist/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        // Auth check
+        checkAuthentication();
+
+        async function checkAuthentication(){
+            try{
+                const response = await fetch('../backend/check_super_admin_session.php');
+                const data = await response.json();
+                if(!data.authenticated){ window.location.href='login.html'; return; }
+                const username = (data.user && data.user.username) ? String(data.user.username) : 'User';
+                const initials = username.split(/\s+|_/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+                const avatarEl = document.getElementById('navAvatar');
+                if(avatarEl){ avatarEl.textContent = initials || 'U'; avatarEl.title = username; }
+                const avatarUsername = document.getElementById('avatarUsername');
+                if(avatarUsername) avatarUsername.textContent = username;
+            }catch(e){ console.error('Authentication check failed:', e); window.location.href='login.html'; }
+        }
+
+        // Toggle Add Employee form
+        function toggleAddEmployee(){
+            const card = document.getElementById('addEmployeeCard');
+            if(!card) return;
+            
+            // If currently editing, reset form first
+            if (editingEmployeeId) {
+                resetEmployeeForm();
+                return;
+            }
+            
+            const willShow = card.classList.contains('hidden');
+            card.classList.toggle('hidden');
+            if(willShow){
+                // Ensure form is in add mode
+                const btn = card.querySelector('.btn-primary');
+                btn.innerHTML = '<i class="fas fa-plus me-1"></i> Add Employee';
+                btn.onclick = submitAddEmployee;
+                
+                // Focus first field and scroll into view
+                setTimeout(()=>{
+                    document.getElementById('empFirstName')?.focus();
+                    card.scrollIntoView({ behavior:'smooth', block:'center' });
+                }, 50);
+            }
+        }
+
+        function submitAddEmployee(){
+            // Reuse existing addEmployee logic
+            addEmployee();
+        }
+
+        // Add Employee handler
+        async function addEmployee(){
+            const btn = event?.currentTarget;
+            if(btn){ btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Adding...'; }
+            try{
+                // Auto-generate password if empty but username provided
+                const unameEl = document.getElementById('empUsername');
+                const pwordEl = document.getElementById('empPassword');
+                if (unameEl && pwordEl && !pwordEl.value.trim() && unameEl.value.trim()) {
+                    const sanitized = unameEl.value.trim().replace(/\s+/g,'').toLowerCase();
+                    const rand4 = Math.floor(1000 + Math.random()*9000);
+                    pwordEl.value = `${sanitized}_${rand4}`;
+                }
+                const payload = {
+                    first_name: document.getElementById('empFirstName').value.trim(),
+                    last_name: document.getElementById('empLastName').value.trim(),
+                    username: document.getElementById('empUsername').value.trim(),
+                    password: document.getElementById('empPassword').value,
+                    phone: document.getElementById('empPhone').value.trim(),
+                    department: document.getElementById('empDepartment').value.trim(),
+                    email: document.getElementById('empEmail').value.trim(),
+                    assigned_section: document.getElementById('empSection').value.trim(),
+                    status: document.getElementById('empStatus').value
+                };
+                if(!payload.username || !payload.password){
+                    alert('Username and password are required.');
+                    return;
+                }
+                const res = await fetch('../backend/add_employee.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if(!data.success){ throw new Error(data.message || 'Add failed'); }
+                // Save the plain password temporarily so it can be displayed once in the table
+                const newId = data?.data?.id;
+                const plainPw = data?.data?.plain_password;
+                if (newId && plainPw) {
+                    saveNewEmployeePassword(String(newId), String(plainPw));
+                }
+                // Clear inputs
+                ['empFirstName','empLastName','empUsername','empPassword','empPhone','empDepartment','empEmail','empSection'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+                document.getElementById('empStatus').value='active';
+                // Reload table
+                await loadEmployees();
+                alert('Employee added successfully.');
+            }catch(e){
+                console.error('Add employee failed:', e);
+                alert('Failed to add employee: ' + e.message);
+            }finally{
+                if(btn){ btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus me-1"></i> Add Employee'; }
+            }
+        }
+
+        // Sidebar controls
+        function toggleSidebar(){
+            const sidebar = document.getElementById('appSidebar');
+            const content = document.getElementById('contentWrapper');
+            const overlay = document.getElementById('sidebarOverlay');
+            if(!sidebar||!content) return;
+            sidebar.classList.toggle('open');
+            content.classList.toggle('shifted');
+            if(overlay) overlay.classList.toggle('show');
+        }
+        function closeSidebar(){
+            const sidebar = document.getElementById('appSidebar');
+            const content = document.getElementById('contentWrapper');
+            const overlay = document.getElementById('sidebarOverlay');
+            if(!sidebar||!content) return;
+            sidebar.classList.remove('open');
+            content.classList.remove('shifted');
+            if(overlay) overlay.classList.remove('show');
+        }
+        function applySidebarCollapsed(collapsed){
+            document.body.classList.toggle('sidebar-collapsed', !!collapsed);
+            try{ localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0'); }catch(e){}
+        }
+        function toggleSidebarCollapsed(){
+            const collapsed = !document.body.classList.contains('sidebar-collapsed');
+            applySidebarCollapsed(collapsed);
+        }
+        (function initSidebarCollapsed(){
+            try{ const saved = localStorage.getItem('sidebarCollapsed'); if(saved==='1') applySidebarCollapsed(true); }catch(e){}
+        })();
+
+        // Temporary storage for newly created employee passwords (shown once in the table)
+        const NEW_EMP_PW_KEY = 'new_employee_passwords';
+        function getNewEmployeePasswords(){
+            try {
+                const raw = localStorage.getItem(NEW_EMP_PW_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch (e) { return {}; }
+        }
+        function saveNewEmployeePassword(id, pw){
+            const map = getNewEmployeePasswords();
+            map[id] = pw;
+            try { localStorage.setItem(NEW_EMP_PW_KEY, JSON.stringify(map)); } catch (e) {}
+        }
+        function removeNewEmployeePassword(id){
+            const map = getNewEmployeePasswords();
+            if (Object.prototype.hasOwnProperty.call(map, id)){
+                delete map[id];
+                try { localStorage.setItem(NEW_EMP_PW_KEY, JSON.stringify(map)); } catch (e) {}
+            }
+        }
+
+        // Toggle show/hide plaintext password in table if available
+        function togglePassword(id){
+            const map = getNewEmployeePasswords();
+            const plain = map[String(id)];
+            const textEl = document.getElementById(`pw-text-${id}`);
+            const eyeEl = document.getElementById(`pw-eye-${id}`);
+            if (!textEl || !eyeEl) return;
+            if (!plain){
+                // No plaintext stored for this employee
+                textEl.textContent = '••••••';
+                eyeEl.classList.remove('fa-eye');
+                eyeEl.classList.add('fa-eye-slash');
+                alert('Plain password is not available for this user (it is stored securely).');
+                return;
+            }
+            if (textEl.textContent === '••••••'){
+                textEl.textContent = String(plain);
+                eyeEl.classList.remove('fa-eye');
+                eyeEl.classList.add('fa-eye-slash');
+            } else {
+                textEl.textContent = '••••••';
+                eyeEl.classList.remove('fa-eye-slash');
+                eyeEl.classList.add('fa-eye');
+            }
+        }
+
+        async function logout(){
+            if(confirm('Are you sure you want to logout?')){
+                try{ await fetch('../backend/super_admin_logout.php', { method:'POST' }); }catch(e){ console.error('Logout error:', e); }
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Employees loader
+        async function loadEmployees(){
+            try{
+                const response = await fetch('../backend/get_employees.php');
+                const data = await response.json();
+                const tbody = document.getElementById('employeesTableBody');
+                if(data.success && data.data.length > 0){
+                    // Cache employees for other UI (e.g., tasks modal)
+                    window._employeesCache = data.data.slice();
+                    tbody.innerHTML = '';
+                    const newPwMap = getNewEmployeePasswords();
+                    data.data.forEach((employee, index) => {
+                        const statusBadge = getStatusBadge(employee.status);
+                        const fullName = `${employee.first_name} ${employee.last_name}`;
+                        const displayPw = '••••••'; // default masked; reveal on eye click if available
+                        const hasPlain = !!newPwMap[String(employee.id)];
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${employee.id}</td>
+                                <td>${fullName}</td>
+                                <td>${employee.department || employee.role || ''}</td>
+                                <td>${employee.assigned_section}</td>
+                                <td>${employee.phone}</td>
+                                <td>${employee.email || ''}</td>
+                                <td title="Passwords are stored securely; click the eye to show if available.">
+                                    <span id="pw-text-${employee.id}">${displayPw}</span>
+                                    <button class="btn btn-sm btn-link text-decoration-none ms-1" onclick="togglePassword(${employee.id})" title="Show/Hide password">
+                                        <i id="pw-eye-${employee.id}" class="fas fa-eye${hasPlain ? '' : '-slash'}"></i>
+                                    </button>
+                                </td>
+                                <td>${statusBadge}</td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-light border" onclick="editEmployee(${employee.id})" title="Edit">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-light border text-danger" onclick="deleteEmployee(${employee.id})" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    // After table is rendered, check if a specific employee should be highlighted
+                    highlightEmployeeFromQuery();
+                } else if (data.success && data.data.length === 0){
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted">
+                                <i class="fas fa-users fa-2x mb-2"></i><br>
+                                No employees found
+                            </td>
+                        </tr>`;
+                } else {
+                    throw new Error(data.error || 'Failed to load employees');
+                }
+            }catch(error){
+                console.error('Error loading employees:', error);
+                document.getElementById('employeesTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="9" class="text-center py-4 text-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Error loading employees: ${error.message}
+                        </td>
+                    </tr>`;
+            }
+        }
+
+        // Highlight and scroll to employee if highlightEmployeeId is present in query string
+        function highlightEmployeeFromQuery(){
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const targetId = params.get('highlightEmployeeId');
+                if(!targetId) return;
+                const tbody = document.getElementById('employeesTableBody');
+                if(!tbody) return;
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+                const row = rows.find(tr => {
+                    const idCell = tr.querySelector('td');
+                    return idCell && idCell.textContent.trim() === String(targetId);
+                });
+                if(row){
+                    row.classList.add('table-warning');
+                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setTimeout(()=> row.classList.remove('table-warning'), 3500);
+                }
+            } catch (e) { console.warn('highlightEmployeeFromQuery failed:', e); }
+        }
+
+        function getStatusBadge(status){
+            switch((status||'').toLowerCase()){
+                case 'active': return '<span class="badge bg-success">Active</span>';
+                case 'inactive': return '<span class="badge bg-secondary">Inactive</span>';
+                case 'on_leave': return '<span class="badge bg-warning text-dark">On Leave</span>';
+                case 'pending': return '<span class="badge bg-info text-dark">Pending</span>';
+                default: return '<span class="badge bg-secondary">Unknown</span>';
+            }
+        }
+        // Edit Employee functionality
+        let editingEmployeeId = null;
+        
+        async function editEmployee(id){
+            try {
+                // Get employee data first
+                const response = await fetch('../backend/get_employees.php');
+                const data = await response.json();
+                if (!data.success) throw new Error('Failed to load employee data');
+                
+                const employee = data.data.find(emp => emp.id == id);
+                if (!employee) {
+                    alert('Employee not found');
+                    return;
+                }
+                
+                // Populate form with employee data
+                document.getElementById('empFirstName').value = employee.first_name || '';
+                document.getElementById('empLastName').value = employee.last_name || '';
+                document.getElementById('empUsername').value = employee.username || '';
+                document.getElementById('empPassword').value = ''; // Keep empty for security
+                document.getElementById('empPhone').value = employee.phone || '';
+                document.getElementById('empDepartment').value = employee.department || employee.role || '';
+                document.getElementById('empEmail').value = employee.email || '';
+                document.getElementById('empSection').value = employee.assigned_section || '';
+                document.getElementById('empStatus').value = employee.status || 'active';
+                
+                // Show form and change button text
+                const card = document.getElementById('addEmployeeCard');
+                const btn = card.querySelector('.btn-primary');
+                card.classList.remove('hidden');
+                btn.innerHTML = '<i class="fas fa-save me-1"></i> Update Employee';
+                btn.onclick = () => updateEmployee(id);
+                
+                editingEmployeeId = id;
+                
+                // Scroll to form
+                setTimeout(() => {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    document.getElementById('empFirstName').focus();
+                }, 100);
+                
+            } catch (error) {
+                console.error('Edit employee error:', error);
+                alert('Failed to load employee data: ' + error.message);
+            }
+        }
+        
+        async function updateEmployee(id) {
+            const btn = event?.currentTarget;
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Updating...';
+            }
+            
+            try {
+                const payload = {
+                    id: id,
+                    first_name: document.getElementById('empFirstName').value.trim(),
+                    last_name: document.getElementById('empLastName').value.trim(),
+                    username: document.getElementById('empUsername').value.trim(),
+                    phone: document.getElementById('empPhone').value.trim(),
+                    department: document.getElementById('empDepartment').value.trim(),
+                    email: document.getElementById('empEmail').value.trim(),
+                    assigned_section: document.getElementById('empSection').value.trim(),
+                    status: document.getElementById('empStatus').value
+                };
+                
+                // Include password only if provided
+                const password = document.getElementById('empPassword').value;
+                if (password.trim()) {
+                    payload.password = password;
+                }
+                
+                if (!payload.username) {
+                    alert('Username is required.');
+                    return;
+                }
+                
+                const res = await fetch('../backend/edit_employee.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await res.json();
+                if (!data.success) {
+                    throw new Error(data.message || 'Update failed');
+                }
+                
+                // Clear form and reset
+                resetEmployeeForm();
+                await loadEmployees();
+                alert('Employee updated successfully.');
+                
+            } catch (error) {
+                console.error('Update employee error:', error);
+                alert('Failed to update employee: ' + error.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-save me-1"></i> Update Employee';
+                }
+            }
+        }
+
+        // Tasks inline form handlers
+        function openTasksForm(){
+            try{
+                const card = document.getElementById('tasksFormCard');
+                if(!card) return;
+                const select = document.getElementById('taskEmployee');
+                if(select){
+                    const list = Array.isArray(window._employeesCache) ? window._employeesCache : [];
+                    const current = select.value || '';
+                    select.innerHTML = '<option value="" disabled selected>Select employee</option>' +
+                        list.map(emp => `<option value="${emp.id}">${emp.id} - ${emp.first_name} ${emp.last_name}</option>`).join('');
+                    if(current) select.value = current;
+                }
+                if(card.classList.contains('hidden')){
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+                if(!card.classList.contains('hidden')){
+                    setTimeout(()=> card.scrollIntoView({ behavior:'smooth', block:'center' }), 50);
+                }
+            }catch(e){ console.error('openTasksForm error:', e); }
+        }
+
+        async function submitTask(e){
+            e?.preventDefault();
+            const btn = e?.currentTarget || document.querySelector('#tasksFormCard .btn.btn-primary');
+            if(btn){ btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...'; }
+            try{
+                const payload = {
+                    employee_id: document.getElementById('taskEmployee').value,
+                    title: document.getElementById('taskTitle').value.trim(),
+                    description: document.getElementById('taskDescription').value.trim(),
+                    status: document.getElementById('taskStatus').value
+                };
+                if(!payload.employee_id || !payload.title || !payload.description){
+                    alert('Please fill all required fields.');
+                    return;
+                }
+                const res = await fetch('../backend/add_task.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                let data = {};
+                try { data = await res.json(); } catch(_) {}
+                if(!res.ok || data.success === false){
+                    throw new Error(data.message || 'Failed to save task (ensure backend endpoint exists).');
+                }
+                alert('Task saved successfully.');
+                // Reset fields after success
+                document.getElementById('taskTitle').value = '';
+                document.getElementById('taskDescription').value = '';
+                document.getElementById('taskStatus').value = 'pending';
+            }catch(err){
+                console.error('submitTask error:', err);
+                alert(err.message);
+            }finally{
+                if(btn){ btn.disabled = false; btn.innerHTML = '<i class=\"fas fa-save me-1\"></i> Save Task'; }
+            }
+        }
+        
+        function resetEmployeeForm() {
+            // Clear all form fields
+            ['empFirstName','empLastName','empUsername','empPassword','empPhone','empDepartment','empEmail','empSection'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            document.getElementById('empStatus').value = 'active';
+            
+            // Reset button and hide form
+            const card = document.getElementById('addEmployeeCard');
+            const btn = card.querySelector('.btn-primary');
+            btn.innerHTML = '<i class="fas fa-plus me-1"></i> Add Employee';
+            btn.onclick = submitAddEmployee;
+            card.classList.add('hidden');
+            
+            editingEmployeeId = null;
+        }
+        
+        async function deleteEmployee(id) {
+            if (!confirm('Are you sure you want to delete this employee? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const res = await fetch('../backend/delete_employee.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id })
+                });
+                
+                const data = await res.json();
+                if (!data.success) {
+                    throw new Error(data.message || 'Delete failed');
+                }
+                
+                // Remove any temporarily stored password for this employee
+                removeNewEmployeePassword(String(id));
+                
+                await loadEmployees();
+                alert('Employee deleted successfully.');
+                
+            } catch (error) {
+                console.error('Delete employee error:', error);
+                alert('Failed to delete employee: ' + error.message);
+            }
+        }
+
+        // Collect table data: returns [headers[], ...rows[]]
+        function collectEmployeesTableData(){
+            const table = document.querySelector('.table');
+            if(!table) return [];
+            const allHeaders = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+            const headers = allHeaders.slice(0, allHeaders.length - 1); // exclude last Actions column
+            const rows = [];
+            const tbody = document.getElementById('employeesTableBody');
+            if(!tbody) return [headers];
+            Array.from(tbody.querySelectorAll('tr')).forEach(tr => {
+                if(tr.id === 'employeesLoading') return;
+                const tds = Array.from(tr.querySelectorAll('td'));
+                const cells = tds.slice(0, tds.length - 1).map(td => td.textContent.trim()); // exclude last Actions column
+                if(cells.length) rows.push(cells);
+            });
+            return [headers, ...rows];
+        }
+
+        // Export to PDF using jsPDF + autoTable
+        function exportEmployeesToPDF(){
+            try{
+                const data = collectEmployeesTableData();
+                if(!data.length || data.length === 1){ alert('No employees data to export.'); return; }
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: 'p', unit: 'pt', format: 'a4' });
+                const title = 'Employees Report';
+                const now = new Date();
+                const subtitle = now.toLocaleString();
+                doc.setFontSize(16);
+                doc.text(title, 40, 40);
+                doc.setFontSize(10);
+                doc.setTextColor(100);
+                doc.text(subtitle, 40, 58);
+                const head = [data[0]];
+                const body = data.slice(1);
+                doc.autoTable({
+                    head,
+                    body,
+                    startY: 70,
+                    styles: { fontSize: 9 },
+                    headStyles: { fillColor: [78,115,223] },
+                    theme: 'striped',
+                    margin: { left: 40, right: 40 }
+                });
+                doc.save('employees.pdf');
+            }catch(e){
+                console.error('PDF export failed:', e);
+                alert('Failed to export PDF.');
+            }
+        }
+
+        // Export to Excel using SheetJS
+        function exportEmployeesToExcel(){
+            try{
+                const data = collectEmployeesTableData();
+                if(!data.length || data.length === 1){ alert('No employees data to export.'); return; }
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Employees');
+                XLSX.writeFile(wb, 'employees.xlsx');
+            }catch(e){
+                console.error('Excel export failed:', e);
+                alert('Failed to export Excel.');
+            }
+        }
+
+        // Tasks Management Functions
+        let editingTaskId = null;
+
+        // Toggle Add Task form
+        function toggleAddTask(){
+            const card = document.getElementById('addTaskCard');
+            if(!card) return;
+            
+            // If currently editing, reset form first
+            if (editingTaskId) {
+                resetTaskForm();
+                return;
+            }
+            
+            const willShow = card.classList.contains('hidden');
+            card.classList.toggle('hidden');
+            if(willShow){
+                // Populate employee dropdown
+                populateTaskEmployeeDropdown();
+                
+                // Ensure form is in add mode
+                const btn = card.querySelector('.btn-primary');
+                btn.innerHTML = '<i class="fas fa-plus me-1"></i> Add Task';
+                btn.onclick = submitNewTask;
+                
+                // Focus first field and scroll into view
+                setTimeout(()=>{
+                    document.getElementById('newTaskTitle')?.focus();
+                    card.scrollIntoView({ behavior:'smooth', block:'center' });
+                }, 50);
+            }
+        }
+
+        // Populate employee dropdown for tasks
+        function populateTaskEmployeeDropdown(){
+            const select = document.getElementById('newTaskEmployee');
+            if(!select) return;
+            
+            const list = Array.isArray(window._employeesCache) ? window._employeesCache : [];
+            select.innerHTML = '<option value="" disabled selected>Select employee</option>' +
+                list.map(emp => `<option value="${emp.id}">${emp.id} - ${emp.first_name} ${emp.last_name}</option>`).join('');
+        }
+
+        // Submit new task
+        async function submitNewTask(e){
+            e?.preventDefault();
+            const btn = e?.currentTarget || document.querySelector('#addTaskCard .btn.btn-primary');
+            if(btn){ btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...'; }
+            
+            try{
+                const payload = {
+                    employee_id: document.getElementById('newTaskEmployee').value,
+                    title: document.getElementById('newTaskTitle').value.trim(),
+                    description: document.getElementById('newTaskDescription').value.trim(),
+                    status: document.getElementById('newTaskStatus').value
+                };
+                
+                if(!payload.employee_id || !payload.title || !payload.description){
+                    alert('Please fill all required fields.');
+                    return;
+                }
+                
+                const res = await fetch('../backend/add_task.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                let data = {};
+                try { data = await res.json(); } catch(_) {}
+                
+                if(!res.ok || data.success === false){
+                    throw new Error(data.message || 'Failed to save task.');
+                }
+                
+                alert('Task added successfully.');
+                resetTaskForm();
+                await loadTasks();
+                
+            }catch(err){
+                console.error('submitNewTask error:', err);
+                alert(err.message);
+            }finally{
+                if(btn){ btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-1"></i> Save Task'; }
+            }
+        }
+
+        // Load tasks from server
+        async function loadTasks(){
+            try{
+                const response = await fetch('../backend/get_all_tasks.php');
+                const data = await response.json();
+                const tbody = document.getElementById('tasksTableBody');
+                
+                if(data.success && data.data.length > 0){
+                    tbody.innerHTML = '';
+                    data.data.forEach((task, index) => {
+                        const statusBadge = getTaskStatusBadge(task.status);
+                        const employeeName = task.employee_name || `Employee ${task.employee_id}`;
+                        const createdAt = new Date(task.created_at).toLocaleDateString();
+                        const truncatedDesc = task.description.length > 50 ? 
+                            task.description.substring(0, 50) + '...' : task.description;
+                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${task.id}</td>
+                                <td>${employeeName}</td>
+                                <td>${task.title}</td>
+                                <td title="${task.description}">${truncatedDesc}</td>
+                                <td>${statusBadge}</td>
+                                <td>${createdAt}</td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-light border" onclick="editTask(${task.id})" title="Edit">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-light border text-danger" onclick="deleteTask(${task.id})" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                } else if (data.success && data.data.length === 0){
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="fas fa-tasks fa-2x mb-2"></i><br>
+                                No tasks found
+                            </td>
+                        </tr>`;
+                } else {
+                    throw new Error(data.error || 'Failed to load tasks');
+                }
+            }catch(error){
+                console.error('Error loading tasks:', error);
+                document.getElementById('tasksTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Error loading tasks: ${error.message}
+                        </td>
+                    </tr>`;
+            }
+        }
+
+        // Get task status badge
+        function getTaskStatusBadge(status){
+            switch((status||'').toLowerCase()){
+                case 'pending': return '<span class="badge bg-warning text-dark">Pending</span>';
+                case 'in_progress': return '<span class="badge bg-info">In Progress</span>';
+                case 'completed': return '<span class="badge bg-success">Completed</span>';
+                default: return '<span class="badge bg-secondary">Unknown</span>';
+            }
+        }
+
+        // Edit task
+        async function editTask(id){
+            try {
+                const response = await fetch('../backend/get_all_tasks.php');
+                const data = await response.json();
+                if (!data.success) throw new Error('Failed to load task data');
+                
+                const task = data.data.find(t => t.id == id);
+                if (!task) {
+                    alert('Task not found');
+                    return;
+                }
+                
+                // Populate form with task data
+                populateTaskEmployeeDropdown();
+                document.getElementById('newTaskEmployee').value = task.employee_id || '';
+                document.getElementById('newTaskTitle').value = task.title || '';
+                document.getElementById('newTaskDescription').value = task.description || '';
+                document.getElementById('newTaskStatus').value = task.status || 'pending';
+                
+                // Show form and change button text
+                const card = document.getElementById('addTaskCard');
+                const btn = card.querySelector('.btn-primary');
+                card.classList.remove('hidden');
+                btn.innerHTML = '<i class="fas fa-save me-1"></i> Update Task';
+                btn.onclick = () => updateTask(id);
+                
+                editingTaskId = id;
+                
+                // Scroll to form
+                setTimeout(() => {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    document.getElementById('newTaskTitle').focus();
+                }, 100);
+                
+            } catch (error) {
+                console.error('Edit task error:', error);
+                alert('Failed to load task data: ' + error.message);
+            }
+        }
+
+        // Update task
+        async function updateTask(id) {
+            const btn = event?.currentTarget;
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Updating...';
+            }
+            
+            try {
+                const payload = {
+                    id: id,
+                    employee_id: document.getElementById('newTaskEmployee').value,
+                    title: document.getElementById('newTaskTitle').value.trim(),
+                    description: document.getElementById('newTaskDescription').value.trim(),
+                    status: document.getElementById('newTaskStatus').value
+                };
+                
+                if (!payload.employee_id || !payload.title || !payload.description) {
+                    alert('Please fill all required fields.');
+                    return;
+                }
+                
+                const res = await fetch('../backend/edit_task.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await res.json();
+                if (!data.success) {
+                    throw new Error(data.message || 'Update failed');
+                }
+                
+                resetTaskForm();
+                await loadTasks();
+                alert('Task updated successfully.');
+                
+            } catch (error) {
+                console.error('Update task error:', error);
+                alert('Failed to update task: ' + error.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-save me-1"></i> Update Task';
+                }
+            }
+        }
+
+        // Delete task
+        async function deleteTask(id) {
+            if (!confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const res = await fetch('../backend/delete_task.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id })
+                });
+                
+                const data = await res.json();
+                if (!data.success) {
+                    throw new Error(data.message || 'Delete failed');
+                }
+                
+                await loadTasks();
+                alert('Task deleted successfully.');
+                
+            } catch (error) {
+                console.error('Delete task error:', error);
+                alert('Failed to delete task: ' + error.message);
+            }
+        }
+
+        // Reset task form
+        function resetTaskForm() {
+            // Clear all form fields
+            document.getElementById('newTaskEmployee').value = '';
+            document.getElementById('newTaskTitle').value = '';
+            document.getElementById('newTaskDescription').value = '';
+            document.getElementById('newTaskStatus').value = 'pending';
+            
+            // Reset button and hide form
+            const card = document.getElementById('addTaskCard');
+            const btn = card.querySelector('.btn-primary');
+            btn.innerHTML = '<i class="fas fa-plus me-1"></i> Add Task';
+            btn.onclick = submitNewTask;
+            card.classList.add('hidden');
+            
+            editingTaskId = null;
+        }
+
+        // Collect tasks table data for export
+        function collectTasksTableData(){
+            const table = document.querySelector('#tasksTableBody').closest('table');
+            if(!table) return [];
+            const allHeaders = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+            const headers = allHeaders.slice(0, allHeaders.length - 1); // exclude last Actions column
+            const rows = [];
+            const tbody = document.getElementById('tasksTableBody');
+            if(!tbody) return [headers];
+            Array.from(tbody.querySelectorAll('tr')).forEach(tr => {
+                if(tr.id === 'tasksLoading') return;
+                const tds = Array.from(tr.querySelectorAll('td'));
+                const cells = tds.slice(0, tds.length - 1).map(td => td.textContent.trim()); // exclude last Actions column
+                if(cells.length) rows.push(cells);
+            });
+            return [headers, ...rows];
+        }
+
+        // Export tasks to PDF
+        function exportTasksToPDF(){
+            try{
+                const data = collectTasksTableData();
+                if(!data.length || data.length === 1){ alert('No tasks data to export.'); return; }
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: 'p', unit: 'pt', format: 'a4' });
+                const title = 'Tasks Report';
+                const now = new Date();
+                const subtitle = now.toLocaleString();
+                doc.setFontSize(16);
+                doc.text(title, 40, 40);
+                doc.setFontSize(10);
+                doc.setTextColor(100);
+                doc.text(subtitle, 40, 58);
+                const head = [data[0]];
+                const body = data.slice(1);
+                doc.autoTable({
+                    head,
+                    body,
+                    startY: 70,
+                    styles: { fontSize: 9 },
+                    headStyles: { fillColor: [78,115,223] },
+                    theme: 'striped',
+                    margin: { left: 40, right: 40 }
+                });
+                doc.save('tasks.pdf');
+            }catch(e){
+                console.error('PDF export failed:', e);
+                alert('Failed to export PDF.');
+            }
+        }
+
+        // Export tasks to Excel
+        function exportTasksToExcel(){
+            try{
+                const data = collectTasksTableData();
+                if(!data.length || data.length === 1){ alert('No tasks data to export.'); return; }
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Tasks');
+                XLSX.writeFile(wb, 'tasks.xlsx');
+            }catch(e){
+                console.error('Excel export failed:', e);
+                alert('Failed to export Excel.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function(){
+            loadEmployees();
+            loadTasks(); // Load tasks on page load
+            
+            // Auto-generate password when username is finished (on blur)
+            const uname = document.getElementById('empUsername');
+            const pword = document.getElementById('empPassword');
+            function generateAutoPassword(){
+                const raw = (uname?.value || '').trim();
+                if(!raw){ if(pword) pword.value=''; return; }
+                const sanitized = raw.replace(/\s+/g,'').toLowerCase();
+                const rand4 = Math.floor(1000 + Math.random()*9000);
+                if(pword) pword.value = `${sanitized}_${rand4}`;
+            }
+            if(uname){
+                uname.addEventListener('blur', generateAutoPassword);
+            }
+        });
+    </script>
+</body>
+</html>

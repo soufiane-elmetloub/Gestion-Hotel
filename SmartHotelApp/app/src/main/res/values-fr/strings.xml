@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Smart Hotel</string>
+    <string name="app_logo">Application Smart Hotel</string>
+    <string name="notifications">Notifications</string>
+    <string name="loading">Chargement...</string>
+    <string name="no_notifications">Aucune notification pour le moment</string>
+    <string name="notifications_will_appear_here">Les notifications apparaîtront ici lorsqu\'elles seront disponibles</string>
+    <string name="back">Retour</string>
+    <string name="booking">Réservation</string>
+    <string name="checkout">Départ</string>
+    <string name="service">Service</string>
+    <string name="notification_booking">Nouvelle réservation</string>
+    <string name="notification_checkout">Départ enregistré</string>
+    <string name="notification_service">Demande de service</string>
+
+    <!-- Écran des paramètres -->
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_language">Langue</string>
+    <string name="settings_theme">Apparence</string>
+    <string name="settings_dark_mode">Mode sombre</string>
+    <string name="language_ar">العربية</string>
+    <string name="language_en">English</string>
+    <string name="language_fr">Français</string>
+
+    <!-- Profil / Libellés communs -->
+    <string name="view_profile">Voir le profil</string>
+    <string name="contact_support">Contacter le support</string>
+    <string name="settings">Paramètres</string>
+    <string name="logout">Se déconnecter</string>
+    <string name="employee_details">Détails de l\'employé</string>
+    <string name="username_label">Nom d\'utilisateur</string>
+    <string name="full_name_label">Nom complet</string>
+    <string name="assigned_section_label">Section assignée</string>
+    <string name="phone_label">Téléphone</string>
+</resources>

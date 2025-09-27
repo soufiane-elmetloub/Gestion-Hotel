@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/white">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Notification Icon -->
+        <ImageView
+            android:id="@+id/notificationIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_notification_default"
+            android:background="@drawable/notification_icon_background"
+            android:padding="12dp" />
+
+        <!-- Status Dot -->
+        <View
+            android:id="@+id/statusDot"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_alignTop="@id/notificationIcon"
+            android:layout_alignEnd="@id/notificationIcon"
+            android:background="@drawable/circle_red"
+            android:layout_margin="2dp" />
+
+        <!-- Content -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/notificationIcon"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
+
+            <!-- Room Number Badge -->
+            <TextView
+                android:id="@+id/roomNumberBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="إشعار فندق"
+                android:textSize="12sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:background="@drawable/room_badge_background"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/notificationTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="عنوان الإشعار"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/notificationMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="نص تفصيلي يشرح المشكلة التي حدثت في الغرفة"
+                android:textSize="14sp"
+                android:textColor="@color/gray"
+                android:layout_marginTop="2dp"
+                android:maxLines="3"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/notificationTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="منذ 5 دقائق"
+                android:textSize="12sp"
+                android:textColor="@color/gray_light"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

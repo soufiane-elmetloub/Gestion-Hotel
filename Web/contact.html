@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Smart Hotel</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts - Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Shared Layout Styles -->
+    <link href="assets/layout.css" rel="stylesheet">
+    <style>
+        :root { --primary-color:#4e73df; --secondary-color:#1cc88a; --danger-color:#e74a3b; --warning-color:#f6c23e; --info-color:#36b9cc; --light-color:#f8f9fc; --dark-color:#5a5c69; }
+        body { font-family:'Cairo',sans-serif; background-color:var(--light-color); min-height:100vh; }
+        .navbar { background:linear-gradient(135deg, var(--primary-color) 0%, #2e59d9 100%); box-shadow:0 2px 10px rgba(0,0,0,.1); }
+        .navbar .search-center { position:absolute; left:50%; transform:translateX(-50%); width:min(640px, calc(100% - 360px)); display:flex; align-items:center; gap:8px; }
+        .navbar .container-fluid { position:relative; }
+        .navbar .search-center .search-box { position:relative; width:100%; }
+        .navbar .search-center .search-box input { width:100%; height:38px; border-radius:9999px; border:none; outline:none; padding:0 44px; background:rgba(255,255,255,.9); color:#1b1e23; box-shadow: inset 0 0 0 1px rgba(255,255,255,.65), 0 4px 10px rgba(0,0,0,.12); }
+        .navbar .search-center .search-box .icon-left, .navbar .search-center .search-box .icon-right { position:absolute; top:50%; transform:translateY(-50%); color:#6b7280; }
+        .navbar .search-center .search-box .icon-left { left:14px; }
+        .navbar .search-center .search-box .icon-right { right:12px; }
+        @media (max-width:576px){ .navbar .search-center{ width:75%; } .navbar .search-center .search-box input{ height:34px; } }
+        /* Sidebar */
+        .sidebar { position:fixed; top:0; left:0; height:100vh; width:260px; background:linear-gradient(180deg, #2e59d9 0%, var(--primary-color) 65%); color:#fff; box-shadow:4px 0 18px rgba(0,0,0,.12); z-index:1041; padding-top:0; overflow-y:auto; border-top-right-radius:16px; border-bottom-right-radius:16px; transition:width .25s ease; }
+        body.sidebar-collapsed .sidebar { width:80px; }
+        body.sidebar-collapsed .content-wrapper { margin-left:80px; }
+        @media (min-width:992px){ .navbar{ padding-left:260px; } body.sidebar-collapsed .navbar{ padding-left:80px; } }
+        body.sidebar-collapsed .sidebar .brand-name { display:none; }
+        body.sidebar-collapsed .sidebar .menu a { justify-content:center; }
+        body.sidebar-collapsed .sidebar .menu a .label { display:none; }
+        body.sidebar-collapsed .sidebar .menu a .icon { margin-right:0; }
+        body.sidebar-collapsed .sidebar-header { justify-content:center; }
+        body.sidebar-collapsed .sidebar-header .brand-logo { height:28px; }
+        @media (max-width:991.98px){ body.sidebar-collapsed .sidebar{ width:260px; } body.sidebar-collapsed .content-wrapper{ margin-left:0; } }
+        .sidebar-header { display:flex; align-items:center; gap:10px; padding:.2rem .9rem .65rem; margin-bottom:.1rem; border-bottom:1px dashed rgba(255,255,255,.25); position:sticky; top:0; z-index:1; background:linear-gradient(180deg, #2e59d9 0%, rgba(46,89,217,.92) 70%); }
+        .brand-logo { height:42px; width:auto; object-fit:contain; filter:brightness(0) invert(1); }
+        .brand-name { font-weight:700; font-size:1.3rem; line-height:1.2; }
+        .sidebar-collapse-btn { margin-left:auto; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.35); color:#fff; width:34px; height:34px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; }
+        .sidebar-collapse-btn i { transition: transform .25s ease; }
+        .sidebar .menu { list-style:none; margin:0; padding:.5rem .75rem; }
+        .sidebar .menu li { margin-bottom:.35rem; }
+        .sidebar .menu a { position:relative; display:flex; align-items:center; gap:12px; padding:.65rem .9rem; color:rgba(255,255,255,.95); text-decoration:none; border-radius:12px; transition: background .2s ease, transform .2s ease, color .2s ease; }
+        .sidebar .menu a:hover { background:rgba(255,255,255,.10); transform:translateX(3px); }
+        .sidebar .menu a.active { background:rgba(255,255,255,.16); box-shadow: inset 0 0 0 1px rgba(255,255,255,.20); }
+        .sidebar .menu a.active::before { content:""; position:absolute; left:-6px; top:10px; bottom:10px; width:3px; border-radius:3px; background:#fff; }
+        .sidebar .menu a .icon { width:22px; min-width:22px; text-align:center; opacity:.95; }
+        .sidebar::-webkit-scrollbar { width:8px; } .sidebar::-webkit-scrollbar-track{ background:rgba(255,255,255,.08); border-radius:8px; } .sidebar::-webkit-scrollbar-thumb{ background:rgba(0,0,0,.25); border-radius:8px; } .sidebar::-webkit-scrollbar-thumb:hover{ background:rgba(0,0,0,.35); }
+        .content-wrapper { margin-left:260px; transition: margin-left .25s ease; padding-top:56px; }
+        @media (max-width:991.98px){ .sidebar{ transform:translateX(-100%); transition: transform .25s ease; } .sidebar.open{ transform:translateX(0); } .content-wrapper{ margin-left:0; padding-top:56px; } .content-wrapper.shifted{ margin-left:260px; } }
+        .sidebar-overlay { position:fixed; inset:0; background:rgba(0,0,0,.25); z-index:1015; display:none; }
+        .sidebar-overlay.show { display:block; }
+        /* User avatar */
+        .avatar { width:48px; height:48px; border-radius:50%; background:rgba(255,255,255,.15); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:700; letter-spacing:.5px; text-transform:uppercase; border:1px solid rgba(255,255,255,.35); user-select:none; }
+        .avatar-btn.dropdown-toggle::after { display:none; }
+        .avatar-menu .dropdown-menu { min-width:220px; }
+        .avatar-menu .dropdown-header { font-weight:600; }
+        .avatar-menu .badge { font-size:.7rem; }
+        /* Contact page */
+        .contact-card { background:#fff; border-radius:16px; padding:1.25rem; box-shadow:0 6px 18px rgba(0,0,0,.08); margin-bottom:1.5rem; }
+        .pill-input { border-radius:9999px !important; padding:.6rem 1rem; }
+        .pill-textarea { border-radius:16px !important; padding:.8rem 1rem; }
+        .pill-btn { border-radius:9999px !important; padding:.6rem 1.2rem; }
+        .badge-status { text-transform: capitalize; }
+        .badge-status.open { background-color:#0d6efd; }
+        .badge-status.in_progress { background-color:#f6c23e; color:#212529; }
+        .badge-status.closed { background-color:#6c757d; }
+        /* priority removed */
+    </style>
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container-fluid">
+            <button class="btn btn-outline-light btn-sm me-2 d-lg-none" type="button" onclick="toggleSidebar()" title="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="ms-auto navbar-nav align-items-center avatar-menu">
+                <div class="dropdown">
+                    <button class="btn avatar-btn p-0" type="button" id="avatarDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Account">
+                        <div class="avatar" id="navAvatar">SA</div>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="avatarDropdown">
+                        <li><h6 class="dropdown-header" id="avatarUsername">Super Admin</h6></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="settings.html"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="appSidebar">
+        <div class="sidebar-header">
+            <img src="image/logoe.png" alt="Smart Hotel Logo" class="brand-logo">
+            <span class="brand-name">Smart Hotel</span>
+            <button class="btn sidebar-collapse-btn d-none d-lg-inline-flex" type="button" onclick="toggleSidebarCollapsed()" title="Collapse/Expand">
+                <i class="fas fa-angles-left"></i>
+            </button>
+        </div>
+        <ul class="menu">
+            <li><a href="dashboard.html"><span class="icon"><i class="fas fa-gauge"></i></span><span class="label">Dashboard</span></a></li>
+            <li><a href="rooms.html"><span class="icon"><i class="fas fa-bed"></i></span><span class="label">Rooms</span></a></li>
+            <li><a href="bookings.html"><span class="icon"><i class="fas fa-calendar-check"></i></span><span class="label">Bookings</span></a></li>
+            <li><a href="clients.html"><span class="icon"><i class="fas fa-users"></i></span><span class="label">Clients</span></a></li>
+            <li><a href="employees.html"><span class="icon"><i class="fas fa-user-tie"></i></span><span class="label">Employees</span></a></li>
+            <li><a href="reports.html"><span class="icon"><i class="fas fa-chart-line"></i></span><span class="label">Reports</span></a></li>
+            <li><a href="contact.html" class="active"><span class="icon"><i class="fas fa-envelope"></i></span><span class="label">Contact</span></a></li>
+            <li><a href="settings.html"><span class="icon"><i class="fas fa-cog"></i></span><span class="label">Settings</span></a></li>
+        </ul>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- Content -->
+    <div class="content-wrapper" id="contentWrapper">
+        <div class="container mt-4">
+            <h3 class="mb-4"><i class="fas fa-envelope me-2"></i>Contact</h3>
+
+            
+            <!-- Support Tickets List -->
+            <div class="contact-card mt-2">
+                <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+                    <h5 class="fw-bold mb-0"><i class="fas fa-list me-2"></i>Support Tickets</h5>
+                    <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
+                        <button class="btn btn-outline-primary pill-btn" onclick="reloadTickets()"><i class="fas fa-rotate me-1"></i>Refresh</button>
+                    </div>
+                </div>
+                <div class="table-responsive rounded-table">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>From</th>
+                                <th>Subject</th>
+                                <th>Message</th>
+                                <th>Created</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ticketsTableBody">
+                            <tr id="ticketsLoadingRow">
+                                <td colspan="6" class="text-center py-4">
+                                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                    Loading tickets...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Send Notification -->
+                <div class="contact-card mt-3">
+                    <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+                        <h5 class="fw-bold mb-0"><i class="fas fa-paper-plane me-2"></i>Send Notification</h5>
+                    </div>
+                    <div class="row g-2 align-items-center mb-2">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small text-muted mb-1">Employee</label>
+                            <select id="notifyEmployee" class="form-select pill-input">
+                                <option value="">Select employee...</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <label class="form-label small text-muted mb-1">Title</label>
+                            <input id="notifyTitle" type="text" class="form-control pill-input" placeholder="Notification title">
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small text-muted mb-1">Message</label>
+                        <textarea id="notifyMessage" rows="3" class="form-control pill-textarea" placeholder="Write your message..."></textarea>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button id="notifySendBtn" class="btn btn-primary pill-btn" onclick="submitNotification()"><i class="fas fa-paper-plane me-1"></i>Send</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auth check
+        checkAuthentication();
+        async function checkAuthentication(){
+            try{
+                const response = await fetch('../backend/check_super_admin_session.php');
+                const data = await response.json();
+                if(!data.authenticated){ window.location.href='login.html'; return; }
+                const username = (data.user && data.user.username) ? String(data.user.username) : 'User';
+                const initials = username.split(/\s+|_/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+                const avatarEl = document.getElementById('navAvatar');
+                if(avatarEl){ avatarEl.textContent = initials || 'U'; avatarEl.title = username; }
+                const avatarUsername = document.getElementById('avatarUsername');
+                if(avatarUsername) avatarUsername.textContent = username;
+            }catch(e){ console.error('Authentication check failed:', e); window.location.href='login.html'; }
+        }
+
+        // Notification helpers
+        async function loadEmployeesForNotifications(){
+            try{
+                const res = await fetch('../backend/get_employees.php');
+                const data = await res.json();
+                const list = (data && data.data) ? data.data : [];
+                const sel = document.getElementById('notifyEmployee');
+                if(!sel) return;
+                sel.innerHTML = '<option value="">Select employee...</option>' + list.map(e=>{
+                    const name = `${(e.first_name||'').trim()} ${(e.last_name||'').trim()}`.trim() || e.username || `Emp #${e.id}`;
+                    return `<option value="${e.id}">${name}</option>`;
+                }).join('');
+            }catch(err){ console.error('loadEmployeesForNotifications failed:', err); }
+        }
+
+        async function submitNotification(){
+            const btn = document.getElementById('notifySendBtn');
+            if(btn){ btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Sending...'; }
+            try{
+                const employee_id = parseInt(document.getElementById('notifyEmployee')?.value || '0', 10);
+                const title = (document.getElementById('notifyTitle')?.value || '').trim();
+                const message = (document.getElementById('notifyMessage')?.value || '').trim();
+                if(!employee_id){ showToast('Please select an employee', true); return; }
+                if(!title){ showToast('Please enter a title', true); return; }
+                if(!message){ showToast('Please enter a message', true); return; }
+
+                const res = await fetch('../backend/add_notification.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ employee_id, title, message })
+                });
+                const data = await res.json();
+                if(!data || !data.success){ throw new Error(data?.message || 'Failed to send'); }
+                // Clear inputs
+                document.getElementById('notifyTitle').value = '';
+                document.getElementById('notifyMessage').value = '';
+                showToast('Notification sent successfully');
+            }catch(err){
+                console.error('submitNotification failed:', err);
+                showToast('Error: ' + err.message, true);
+            }finally{
+                if(btn){ btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Send'; }
+            }
+        }
+
+        // Sidebar controls
+        function toggleSidebar(){
+            const sidebar = document.getElementById('appSidebar');
+            const content = document.getElementById('contentWrapper');
+            const overlay = document.getElementById('sidebarOverlay');
+            if(!sidebar||!content) return;
+            sidebar.classList.toggle('open');
+            content.classList.toggle('shifted');
+            if(overlay) overlay.classList.toggle('show');
+        }
+        function closeSidebar(){
+            const sidebar = document.getElementById('appSidebar');
+            const content = document.getElementById('contentWrapper');
+            const overlay = document.getElementById('sidebarOverlay');
+            if(!sidebar||!content) return;
+            sidebar.classList.remove('open');
+            content.classList.remove('shifted');
+            if(overlay) overlay.classList.remove('show');
+        }
+        function applySidebarCollapsed(collapsed){
+            document.body.classList.toggle('sidebar-collapsed', !!collapsed);
+            try{ localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0'); }catch(e){}
+        }
+        function toggleSidebarCollapsed(){
+            const collapsed = !document.body.classList.contains('sidebar-collapsed');
+            applySidebarCollapsed(collapsed);
+        }
+        (function initSidebarCollapsed(){
+            try{ const saved = localStorage.getItem('sidebarCollapsed'); if(saved==='1') applySidebarCollapsed(true); }catch(e){}
+        })();
+
+        async function logout(){
+            if(confirm('Are you sure you want to logout?')){
+                try{ await fetch('../backend/super_admin_logout.php', { method:'POST' }); }catch(e){ console.error('Logout error:', e); }
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Submit contact form (demo: console + toast)
+        async function submitContactForm(e){
+            e.preventDefault();
+            const btn = e.submitter; if(btn){ btn.disabled=true; btn.innerHTML='<span class="spinner-border spinner-border-sm me-1"></span>Sending...'; }
+            try{
+                const payload = {
+                    name: document.getElementById('contactName').value.trim(),
+                    email: document.getElementById('contactEmail').value.trim(),
+                    subject: document.getElementById('contactSubject').value.trim(),
+                    message: document.getElementById('contactMessage').value.trim()
+                };
+                // In a next step we can post to backend/support endpoint
+                console.log('Contact form submitted:', payload);
+                showToast('Your message has been sent. Thank you!');
+                document.getElementById('contactForm').reset();
+            }catch(err){
+                console.error('Contact submit error:', err);
+                showToast('Failed to send message. Please try again.', true);
+            }finally{
+                if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane me-1"></i> Send'; }
+            }
+        }
+
+        // Tickets fetching and rendering
+        let ticketsData = [];
+        async function loadTickets(params={}){
+            const tbody = document.getElementById('ticketsTableBody');
+            const loadingRow = document.getElementById('ticketsLoadingRow');
+            if (tbody && loadingRow) loadingRow.style.display = '';
+            try{
+                const usp = new URLSearchParams();
+                if (params.status) usp.set('status', params.status);
+                if (params.q) usp.set('q', params.q);
+                usp.set('limit', '500');
+                const res = await fetch('../backend/get_support_tickets.php?' + usp.toString());
+                const data = await res.json();
+                if(!data.success){ throw new Error(data.error || 'Failed to load tickets'); }
+                ticketsData = Array.isArray(data.data) ? data.data : [];
+                renderTickets(ticketsData);
+            }catch(err){
+                console.error('Tickets load failed:', err);
+                if (tbody){
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger"><i class="fas fa-triangle-exclamation me-2"></i>${err.message}</td></tr>`;
+                }
+            }finally{
+                if (loadingRow) loadingRow.style.display = 'none';
+            }
+        }
+
+        function renderTickets(list){
+            const tbody = document.getElementById('ticketsTableBody');
+            if(!tbody) return;
+            if(!list || list.length === 0){
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fas fa-inbox me-2"></i>No tickets found</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = list.map((t, idx)=>{
+                const status = String(t.status || 'open').toLowerCase();
+                const created = t.created_at ? new Date(t.created_at).toLocaleString() : '';
+                const name = t.display_name || t.name || (t.employee_id ? `Emp #${t.employee_id}` : 'Unknown');
+                const subject = t.subject || '';
+                const message = t.message || '';
+                return `
+                <tr>
+                    <td>${t.id || (idx+1)}</td>
+                    <td>${name}</td>
+                    <td>${subject}</td>
+                    <td style="max-width:420px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${message.replace(/`/g,'')}">${message}</td>
+                    <td>${created}</td>
+                    <td><span class="badge badge-status ${status}">${status}</span></td>
+                </tr>`;
+            }).join('');
+            
+        }
+
+        function reloadTickets(){ loadTickets(); }
+
+        document.addEventListener('DOMContentLoaded', function(){
+            // Initial load
+            loadTickets();
+            loadEmployeesForNotifications();
+        });
+
+        function debounce(fn, delay){
+            let t; return function(...args){ clearTimeout(t); t = setTimeout(()=>fn.apply(this, args), delay); };
+        }
+
+        function showToast(message, isError){
+            const toast = document.createElement('div');
+            toast.className = 'toast align-items-center text-white ' + (isError ? 'bg-danger' : 'bg-success') + ' border-0';
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>`;
+            let toastContainer = document.querySelector('.toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+                document.body.appendChild(toastContainer);
+            }
+            toastContainer.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            toast.addEventListener('hidden.bs.toast', () => toast.remove());
+        }
+    </script>
+</body>
+</html>

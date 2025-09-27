@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Smart Hotel</string>
+    <string name="app_logo">تطبيق الفندق الذكي</string>
+    <string name="notifications">الإشعارات</string>
+    <string name="loading">جاري التحميل...</string>
+    <string name="no_notifications">لا توجد إشعارات حالياً</string>
+    <string name="notifications_will_appear_here">ستظهر الإشعارات هنا عند وجودها</string>
+    <string name="back">رجوع</string>
+    <string name="booking">حجز</string>
+    <string name="checkout">مغادرة</string>
+    <string name="service">خدمة</string>
+    <string name="notification_booking">حجز جديد</string>
+    <string name="notification_checkout">تسجيل مغادرة</string>
+    <string name="notification_service">طلب خدمة</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_language">اللغة</string>
+    <string name="settings_theme">المظهر</string>
+    <string name="settings_dark_mode">الوضع الليلي</string>
+    <string name="language_ar">العربية</string>
+    <string name="language_en">English</string>
+    <string name="language_fr">Français</string>
+
+    <!-- Profile / Common labels -->
+    <string name="view_profile">عرض الملف</string>
+    <string name="contact_support">الدعم الفني</string>
+    <string name="settings">الإعدادات</string>
+    <string name="logout">تسجيل الخروج</string>
+    <string name="employee_details">بيانات الموظف</string>
+    <string name="username_label">اسم المستخدم</string>
+    <string name="full_name_label">الاسم الكامل</string>
+    <string name="assigned_section_label">القسم المكلّف</string>
+    <string name="phone_label">الهاتف</string>
+</resources>

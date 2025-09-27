@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Define IDs used in code to satisfy R references even if views are absent in some layouts -->
+    <item type="id" name="tabLayoutRooms" />
+</resources>

@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Smart Hotel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="assets/layout.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Edu+SA+Hand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #1cc88a;
+            --danger-color: #e74a3b;
+            --warning-color: #f6c23e;
+            --info-color: #36b9cc;
+            --light-color: #f8f9fc;
+            --dark-color: #5a5c69;
+        }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--light-color);
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2e59d9 100%);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .welcome-card {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #17a673 100%);
+            color: white;
+            border-radius: 48px; /* much more rounded corners */
+            padding: 2rem; /* smaller */
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            overflow: hidden; /* ensure inner content respects rounding */
+            position: relative; /* for background layering */
+            min-height: 260px; /* smaller height, text stays centered */
+        }
+        .welcome-card h2 { font-size: 2rem; }
+        .welcome-card p { font-size: 1rem; }
+        /* Background carousel filling the whole card */
+        .welcome-bg, .welcome-bg .carousel, .welcome-bg .carousel-inner, .welcome-bg .carousel-item {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .welcome-bg { z-index: 0; border-radius: inherit; overflow: hidden; }
+        .welcome-bg .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.55);
+        }
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+            /* center content both horizontally and vertically */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 100%;
+            min-height: inherit;
+            padding: 1rem;
+        }
+        .welcome-content-inner { max-width: 900px; margin: 0 auto; }
+        .welcome-content h2 { margin-bottom: 0.5rem; }
+        .welcome-content p { margin: 0; }
+        .welcome-content h2,
+        .welcome-content p {
+            font-family: 'Edu SA Hand', cursive; /* apply requested font */
+            text-shadow: 0 2px 8px rgba(0,0,0,0.35);
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 28px;
+            padding: 1rem; /* smaller padding for compact look */
+            margin-bottom: 1rem; /* tighter spacing between cards */
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+            transition: transform 0.25s ease;
+            position: relative;
+            overflow: hidden; /* for decorative overlay */
+            min-height: 150px; /* compact yet consistent height */
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stats-icon {
+            width: 48px; /* smaller icon */
+            height: 48px; /* smaller icon */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem; /* slightly smaller icon size */
+            color: white;
+            margin-bottom: 1rem;
+        }
+        /* Decorative overlay for a nicer look */
+        .stats-card::after {
+            content: "";
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            pointer-events: none;
+            filter: blur(0.5px);
+        }
+        /* Colored variants for stats cards */
+        .stats-card.card-rooms {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2e59d9 100%);
+            color: #fff;
+        }
+        .stats-card.card-bookings {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #17a673 100%);
+            color: #fff;
+        }
+        .stats-card.card-clients {
+            background: linear-gradient(135deg, #f6c23e 0%, #e0a800 100%);
+            color: #fff;
+        }
+        .stats-card.card-employees {
+            background: linear-gradient(135deg, var(--info-color) 0%, #2aa3b5 100%);
+            color: #fff;
+        }
+        /* Ensure text is readable on colored cards */
+        .stats-card.card-rooms .stats-number,
+        .stats-card.card-bookings .stats-number,
+        .stats-card.card-clients .stats-number,
+        .stats-card.card-employees .stats-number {
+            color: #fff;
+        }
+        .stats-card.card-rooms .stats-label,
+        .stats-card.card-bookings .stats-label,
+        .stats-card.card-clients .stats-label,
+        .stats-card.card-employees .stats-label {
+            color: rgba(255,255,255,0.9);
+        }
+        /* Make the icon chip semi-transparent on colored cards */
+        .stats-card.card-rooms .stats-icon,
+        .stats-card.card-bookings .stats-icon,
+        .stats-card.card-clients .stats-icon,
+        .stats-card.card-employees .stats-icon {
+            background: rgba(255,255,255,0.25) !important;
+        }
+        
+        .stats-number {
+            font-size: 1.6rem; /* smaller number */
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stats-label {
+            color: #6c757d;
+            font-size: 0.95rem; /* smaller label */
+            letter-spacing: 0.2px;
+            font-weight: 500;
+        }
+        
+        .quick-actions {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        /* Modern card and activity timeline */
+        .modern-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
+        .modern-card .card-title { font-weight: 700; margin-bottom: 1rem; }
+        .activity-item { display: flex; gap: 12px; align-items: flex-start; padding: 0.5rem 0; }
+        .activity-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+        .activity-meta { color: #6c757d; font-size: 0.85rem; }
+        .activity-title { font-weight: 600; }
+        .activity-sep { height: 1px; background: #eef1f6; margin: 0.35rem 0; }
+
+        /* Rounded table wrapper */
+        .rounded-table {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            overflow: hidden; /* clip inner table corners */
+        }
+        .rounded-table .table { margin-bottom: 0; }
+        .rounded-table thead th { background: #f8f9fc; }
+        .rounded-table tbody tr:hover { background-color: #f7f9ff; }
+
+        /* Capsule header for sections */
+        .chip-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px;
+            background: #f8f9fc;
+            border: 1px solid #e9ecef;
+            border-radius: 9999px; /* capsule */
+        }
+        .chip-header .chip-title { margin: 0; font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .chip-header .chip-spacer { flex: 1; }
+        .chip-header .chip-actions .btn { border-radius: 9999px; }
+
+        /* Calendar styles */
+        .calendar-card { padding: 1rem; }
+        .calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+        .calendar-title { font-weight: 800; font-size: 1.05rem; }
+        .calendar-nav-btn { 
+            width: 36px; height: 36px; border-radius: 10px; 
+            border: 1px solid #e5e7eb; background: #fff; color: #374151;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .calendar-nav-btn:hover { background: #f3f4f6; }
+        .calendar-weekdays { 
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; 
+            font-size: 0.8rem; color: #6b7280; margin-bottom: 6px; text-align: center;
+        }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+        .calendar-cell { 
+            background: #ffffff; border: 1px solid #e9ecef; border-radius: 10px; 
+            min-height: 64px; padding: 6px; position: relative; text-align: right; color: #1f2937;
+        }
+        .calendar-cell .date { font-size: 0.85rem; font-weight: 600; }
+        .calendar-cell.muted { color: #9ca3af; background: #fafafa; }
+        .calendar-cell.today { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(78,115,223,0.12) inset; }
+        .calendar-legend { display: flex; gap: 10px; align-items: center; margin-top: 8px; font-size: 0.85rem; color: #6b7280; }
+        .calendar-legend .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-inline-end: 6px; }
+        
+        /* Responsive tweaks for smaller screens */
+        @media (max-width: 576px) {
+            .stats-card {
+                min-height: 130px;
+                padding: 0.75rem;
+            }
+            .stats-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 1.15rem;
+                margin-bottom: 0.75rem;
+            }
+            .stats-number {
+                font-size: 1.4rem;
+            }
+            .stats-label {
+                font-size: 0.9rem;
+            }
+        }
+        .action-btn {
+            background: var(--light-color);
+            border: 2px solid #e3e6f0;
+            border-radius: 10px;
+            padding: 1rem;
+            text-decoration: none;
+            color: var(--dark-color);
+            display: block;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateX(-5px);
+        }
+        
+        .logout-btn {
+            background-color: var(--danger-color);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background-color: #c82333;
+            color: white;
+        }
+        
+        /* Sidebar styles */
+        .sidebar {
+            position: fixed;
+            top: 0; /* as it was before */
+            left: 0;
+            height: 100vh; /* full height */
+            width: 260px;
+            background: linear-gradient(180deg, #2e59d9 0%, var(--primary-color) 65%);
+            color: #fff;
+            box-shadow: 4px 0 18px rgba(0,0,0,0.12);
+            z-index: 1041; /* above navbar */
+            padding-top: 0; /* no extra spacing at top */
+            overflow-y: auto; /* scroll if content exceeds */
+            border-top-right-radius: 16px; /* restore rounded corner */
+            border-bottom-right-radius: 16px;
+            transition: width 0.25s ease;
+        }
+        /* Collapsed sidebar (desktop) */
+        body.sidebar-collapsed .sidebar { width: 80px; }
+        body.sidebar-collapsed .content-wrapper { margin-left: 80px; }
+        @media (min-width: 992px) { .navbar { padding-left: 260px; } body.sidebar-collapsed .navbar { padding-left: 80px; } }
+        /* Hide brand name and labels on collapse, center icons */
+        body.sidebar-collapsed .sidebar .brand-name { display: none; }
+        body.sidebar-collapsed .sidebar .menu a { justify-content: center; }
+        body.sidebar-collapsed .sidebar .menu a .label { display: none; }
+        body.sidebar-collapsed .sidebar .menu a .icon { margin-right: 0; }
+        body.sidebar-collapsed .sidebar-header { justify-content: center; }
+        body.sidebar-collapsed .sidebar-header .brand-logo { height: 28px; }
+        /* On mobile, ignore collapsed state and use full-width offcanvas behavior */
+        @media (max-width: 991.98px) {
+            body.sidebar-collapsed .sidebar { width: 260px; }
+            body.sidebar-collapsed .content-wrapper { margin-left: 0; }
+        }
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.2rem 0.9rem 0.65rem 0.9rem; /* add more bottom space to move dashed line down */
+            margin-bottom: 0.1rem;
+            border-bottom: 1px dashed rgba(255,255,255,0.25);
+            position: sticky; /* keep header visible while scrolling */
+            top: 0;
+            z-index: 1;
+            background: linear-gradient(180deg, #2e59d9 0%, rgba(46,89,217,0.92) 70%);
+        }
+        .sidebar-header .brand-logo { height: 34px; }
+        .sidebar-header .brand-name { font-weight: 700; font-size: 1.3rem; line-height: 1.2; }
+        .sidebar-collapse-btn {
+            margin-left: auto;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.35);
+            color: #fff;
+            width: 34px; height: 34px;
+            border-radius: 8px;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .sidebar-collapse-btn i { transition: transform 0.25s ease; }
+        body.sidebar-collapsed .sidebar-collapse-btn i { transform: rotate(180deg); }
+        .sidebar .menu {
+            list-style: none;
+            margin: 0;
+            padding: 0.5rem 0.75rem;
+        }
+        .sidebar .menu li {
+            margin-bottom: 0.35rem;
+        }
+        .sidebar .menu a {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.65rem 0.9rem;
+            color: rgba(255,255,255,0.95);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+        }
+        .sidebar .menu a:hover {
+            background: rgba(255,255,255,0.10);
+            transform: translateX(3px);
+        }
+        .sidebar .menu a.active {
+            background: rgba(255,255,255,0.16);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.20);
+        }
+        .sidebar .menu a.active::before {
+            content: "";
+            position: absolute;
+            left: -6px;
+            top: 10px;
+            bottom: 10px;
+            width: 3px;
+            border-radius: 3px;
+            background: #fff;
+        }
+        .sidebar .menu a .icon {
+            width: 22px;
+            min-width: 22px;
+            text-align: center;
+            opacity: 0.95;
+        }
+        /* Nicer thin scrollbar for the sidebar */
+        .sidebar::-webkit-scrollbar { width: 8px; }
+        .sidebar::-webkit-scrollbar-track { background: rgba(255,255,255,0.08); border-radius: 8px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.25); border-radius: 8px; }
+        .sidebar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.35); }
+        .content-wrapper {
+            margin-left: 260px; /* align with sidebar width */
+            transition: margin-left 0.25s ease;
+            padding-top: 56px; /* clear the fixed navbar height */
+        }
+        /* Mobile behavior */
+        @media (max-width: 991.98px) {
+            .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+            .sidebar.open { transform: translateX(0); }
+            .content-wrapper { margin-left: 0; padding-top: 56px; }
+            .content-wrapper.shifted { margin-left: 260px; }
+        }
+        /* Desktop alignment so navbar content aligns with content area */
+        @media (min-width: 992px) {
+            .navbar { padding-left: 260px; }
+        }
+
+        /* Sidebar overlay for mobile */
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.25);
+            z-index: 1015; /* under navbar (1030), above content */
+            display: none;
+        }
+        .sidebar-overlay.show { display: block; }
+
+        /* Active item in sidebar */
+        .sidebar .menu a.active {
+            background: rgba(255,255,255,0.2);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25);
+        }
+
+        /* Brand logo styling */
+        .brand-logo {
+            height: 42px; /* increased slightly */
+            width: auto;
+            object-fit: contain;
+            background: transparent; /* ensure no background */
+            display: inline-block;
+            vertical-align: middle;
+        }
+        /* Force logo to appear white on dark navbar */
+        .brand-logo.white {
+            filter: brightness(0) invert(1);
+            -webkit-filter: brightness(0) invert(1);
+        }
+
+        /* User avatar (initials) */
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(255,255,255,0.35);
+            user-select: none;
+        }
+        .avatar-btn.dropdown-toggle::after { display: none; }
+        .avatar-menu .dropdown-menu { min-width: 220px; }
+        .avatar-menu .dropdown-header { font-weight: 600; }
+        .avatar-menu .badge { font-size: 0.7rem; }
+
+        /* Centered search in top navbar */
+        .navbar .search-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(640px, calc(100% - 360px)); /* keep space for hamburger + avatar */
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .navbar .container-fluid { position: relative; }
+        .navbar .search-center .search-box {
+            position: relative;
+            width: 100%;
+        }
+        .navbar .search-center .search-box input {
+            width: 100%;
+            height: 38px;
+            border-radius: 9999px; /* fully rounded */
+            border: none;
+            outline: none;
+            padding: 0 44px 0 44px;
+            background: rgba(255,255,255,0.9);
+            color: #1b1e23;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.65), 0 4px 10px rgba(0,0,0,0.12);
+        }
+        .navbar .search-center .search-box .icon-left,
+        .navbar .search-center .search-box .icon-right {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+        }
+        .navbar .search-center .search-box .icon-left { left: 14px; }
+        .navbar .search-center .search-box .icon-right { right: 12px; }
+        @media (max-width: 576px) {
+            .navbar .search-center { width: 75%; }
+            .navbar .search-center .search-box input { height: 34px; }
+        }
+        /* Sections (fixed tabs behavior) */
+        .section { display: none; }
+        .section.active { display: block; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container-fluid">
+            <button class="btn btn-outline-light btn-sm me-2 d-lg-none" type="button" onclick="toggleSidebar()" title="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="search-center d-flex">
+                <div class="search-box">
+                    <i class="fas fa-search icon-left"></i>
+                    <input type="text" placeholder="Search...">
+                    <i class="fas fa-sliders-h icon-right"></i>
+                </div>
+            </div>
+            <div class="navbar-nav ms-auto align-items-center avatar-menu">
+                <div class="dropdown">
+                    <button class="btn avatar-btn p-0" type="button" id="avatarDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Account">
+                        <div class="avatar" id="navAvatar">SA</div>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="avatarDropdown">
+                        <li><h6 class="dropdown-header" id="avatarUsername">Super Admin</h6></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="settings.html"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                     
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+    </div>
+            </div>
+        </div>
+    </nav>
+
+    <aside class="sidebar" id="appSidebar">
+        <div class="sidebar-header">
+            <img src="image/logoe.png" alt="Smart Hotel Logo" class="brand-logo white">
+            <span class="brand-name">Smart Hotel</span>
+            <button class="btn sidebar-collapse-btn d-none d-lg-inline-flex" type="button" onclick="toggleSidebarCollapsed()" title="Collapse/Expand">
+                <i class="fas fa-angles-left"></i>
+            </button>
+        </div>
+        <ul class="menu">
+            <li><a href="dashboard.html" class="active"><span class="icon"><i class="fas fa-gauge"></i></span><span class="label">Dashboard</span></a></li>
+            <li><a href="rooms.html"><span class="icon"><i class="fas fa-bed"></i></span><span class="label">Rooms</span></a></li>
+            <li><a href="bookings.html"><span class="icon"><i class="fas fa-calendar-check"></i></span><span class="label">Bookings</span></a></li>
+            <li><a href="clients.html"><span class="icon"><i class="fas fa-users"></i></span><span class="label">Clients</span></a></li>
+            <li><a href="employees.html"><span class="icon"><i class="fas fa-user-tie"></i></span><span class="label">Employees</span></a></li>
+            <li><a href="reports.html"><span class="icon"><i class="fas fa-chart-line"></i></span><span class="label">Reports</span></a></li>
+            <li><a href="contact.html"><span class="icon"><i class="fas fa-envelope"></i></span><span class="label">Contact</span></a></li>
+            <li><a href="settings.html"><span class="icon"><i class="fas fa-cog"></i></span><span class="label">Settings</span></a></li>
+        </ul>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <div class="content-wrapper" id="contentWrapper">
+    <section id="section-dashboard" class="section active">
+    <div class="container mt-4">
+        <div class="welcome-card">
+            <div class="welcome-bg">
+                <div id="welcomeCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="https://images.unsplash.com/photo-1551776235-dde6d4829808?auto=format&fit=crop&w=1600&q=80&fm=jpg" alt="" onerror="this.style.display='none'" crossorigin="anonymous" referrerpolicy="no-referrer">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80&fm=jpg" alt="" onerror="this.style.display='none'" crossorigin="anonymous" referrerpolicy="no-referrer">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=80&fm=jpg" alt="" onerror="this.style.display='none'" crossorigin="anonymous" referrerpolicy="no-referrer">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="https://images.unsplash.com/photo-1528909514045-2fa4ac7a08ba?auto=format&fit=crop&w=1600&q=80&fm=jpg" alt="" onerror="this.style.display='none'" crossorigin="anonymous" referrerpolicy="no-referrer">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1600&q=80&fm=jpg" alt="" onerror="this.style.display='none'" crossorigin="anonymous" referrerpolicy="no-referrer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="welcome-content">
+                <div class="welcome-content-inner">
+                    <h2><i class="fas fa-tachometer-alt me-2"></i>Main Dashboard</h2>
+                    <p class="mb-0">Welcome to the Smart Hotel Management System. Manage all hotel operations from here.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3 col-sm-6">
+                <div class="stats-card card-rooms text-center">
+                    <div class="stats-icon mx-auto" style="background-color: var(--primary-color);">
+                        <i class="fas fa-bed"></i>
+                    </div>
+                    <div class="stats-number" id="totalRooms">--</div>
+                    <div class="stats-label">Total Rooms</div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6">
+                <div class="stats-card card-bookings text-center">
+                    <div class="stats-icon mx-auto" style="background-color: var(--secondary-color);">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stats-number" id="totalBookings">--</div>
+                    <div class="stats-label">Total Bookings</div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6">
+                <div class="stats-card card-clients text-center">
+                    <div class="stats-icon mx-auto" style="background-color: var(--warning-color);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stats-number" id="totalClients">--</div>
+                    <div class="stats-label">Total Clients</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stats-card card-employees text-center">
+                    <div class="stats-icon mx-auto" style="background-color: var(--dark-color);">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="stats-number" id="totalEmployees">--</div>
+                    <div class="stats-label">Total Employees</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="modern-card">
+                    <div class="chip-header mb-2">
+                        <h5 class="chip-title mb-0"><i class="fas fa-user-tie"></i><span>Employees</span></h5>
+                        <div class="chip-spacer"></div>
+                        <div class="chip-actions">
+                            <a href="employees.html" class="btn btn-sm btn-primary" title="Go to Employees page">View All</a>
+                        </div>
+                    </div>
+                    <div class="table-responsive rounded-table">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Section</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeesTableBody">
+                                <tr id="employeesLoading">
+                                    <td colspan="7" class="text-center py-4">
+                                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                        Loading employees...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modern-card mt-3">
+                    <div class="chip-header mb-2">
+                        <h5 class="chip-title mb-0"><i class="fas fa-bed"></i><span>Rooms</span></h5>
+                        <div class="chip-spacer"></div>
+                        <div class="chip-actions">
+                            <a href="rooms.html" class="btn btn-sm btn-primary" title="Go to Rooms page">View All</a>
+                        </div>
+                    </div>
+                    <div class="table-responsive rounded-table">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Room No</th>
+                                    <th>Type</th>
+                                    <th>Capacity</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Section</th>
+                                </tr>
+                            </thead>
+                            <tbody id="roomsTableBody">
+                                <tr id="roomsLoading">
+                                    <td colspan="6" class="text-center py-4">
+                                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                        Loading rooms...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="modern-card calendar-card">
+                    <div class="calendar-header">
+                        <button class="calendar-nav-btn" onclick="changeMonth(-1)" title="Previous Month"><i class="fas fa-chevron-left"></i></button>
+                        <div class="calendar-title" id="calendarTitle">Month YYYY</div>
+                        <button class="calendar-nav-btn" onclick="changeMonth(1)" title="Next Month"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="calendar-weekdays">
+                        <div>Sun</div>
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                    <div class="calendar-legend">
+                        <span><span class="dot" style="background: var(--primary-color);"></span>Today</span>
+                        <span><span class="dot" style="background: #9ca3af;"></span>Other Month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section id="section-rooms" class="section">
+        <div class="container mt-4">
+            <h3 class="mb-3"><i class="fas fa-bed me-2"></i>Rooms</h3>
+            <div class="alert alert-info">Rooms section content will appear here.</div>
+        </div>
+    </section>
+
+    <section id="section-bookings" class="section">
+        <div class="container mt-4">
+            <h3 class="mb-3"><i class="fas fa-calendar-check me-2"></i>Bookings</h3>
+            <div class="alert alert-info">Bookings section content will appear here.</div>
+        </div>
+    </section>
+
+    <section id="section-clients" class="section">
+        <div class="container mt-4">
+            <h3 class="mb-3"><i class="fas fa-users me-2"></i>Clients</h3>
+            <div class="alert alert-info">Clients section content will appear here.</div>
+        </div>
+    </section>
+
+    <section id="section-employees" class="section">
+        <div class="container mt-4">
+            <h3 class="mb-3"><i class="fas fa-user-tie me-2"></i>Employees</h3>
+            <div class="alert alert-info">Employees section content will appear here.</div>
+        </div>
+    </section>
+
+    <section id="section-reports" class="section">
+        <div class="container mt-4">
+            <h3 class="mb-3"><i class="fas fa-chart-line me-2"></i>Reports</h3>
+            <div class="alert alert-info">Reports section content will appear here.</div>
+        </div>
+    </section>
+
+    <section id="section-settings" class="section">
+        <div class="container mt-4">
+            <h3 class="mb-3"><i class="fas fa-cog me-2"></i>Settings</h3>
+            <div class="alert alert-info">Settings section content will appear here.</div>
+        </div>
+    </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Check authentication on page load
+        checkAuthentication();
+        
+        // Load dashboard data
+        loadDashboardData();
+        
+        async function checkAuthentication() {
+            try {
+                const response = await fetch('../backend/check_super_admin_session.php');
+                const data = await response.json();
+                
+                if (!data.authenticated) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                // Update avatar initials and tooltip from username
+                const username = (data.user && data.user.username) ? String(data.user.username) : 'User';
+                const initials = username
+                    .split(/\s+|_/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map(w => w[0])
+                    .join('')
+                    .toUpperCase();
+                const avatarEl = document.getElementById('navAvatar');
+                if (avatarEl) {
+                    avatarEl.textContent = initials || 'U';
+                    avatarEl.title = username;
+                }
+                const avatarUsername = document.getElementById('avatarUsername');
+                if (avatarUsername) avatarUsername.textContent = username;
+            } catch (error) {
+                console.error('Authentication check failed:', error);
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // Animated counter function
+        function animateCounter(element, targetValue, duration = 2000) {
+            const startValue = 0;
+            const increment = targetValue / (duration / 16); // 60fps
+            let currentValue = startValue;
+            
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= targetValue) {
+                    element.textContent = targetValue;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(currentValue);
+                }
+            }, 16);
+        }
+        
+        async function loadDashboardData() {
+            try {
+                // Load statistics (you can create separate endpoints for each)
+                const response = await fetch('../backend/get_dashboard_stats.php');
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Animate counters instead of direct assignment
+                    animateCounter(document.getElementById('totalRooms'), parseInt(data.stats.total_rooms) || 0);
+                    animateCounter(document.getElementById('totalBookings'), parseInt(data.stats.total_bookings) || 0);
+                    animateCounter(document.getElementById('totalClients'), parseInt(data.stats.total_clients) || 0);
+                    if (document.getElementById('totalEmployees')) {
+                        animateCounter(document.getElementById('totalEmployees'), parseInt(data.stats.total_employees) || 0);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load dashboard data:', error);
+                // Set default values
+                document.getElementById('totalRooms').textContent = '0';
+                document.getElementById('totalBookings').textContent = '0';
+                document.getElementById('totalClients').textContent = '0';
+                const empEl = document.getElementById('totalEmployees');
+                if (empEl) empEl.textContent = '0';
+            }
+        }
+        
+        async function loadRooms() {
+            try {
+                const response = await fetch('../backend/get_rooms.php');
+                const data = await response.json();
+                const tbody = document.getElementById('roomsTableBody');
+                const list = data.rooms || data.data || [];
+
+                if (data.success && list.length > 0) {
+                    tbody.innerHTML = '';
+                    // Show a limited number on dashboard (first 5)
+                    list.slice(0, 5).forEach((room) => {
+                        const statusBadge = getRoomStatusBadge(room.status);
+                        const priceVal = (room.price_per_night !== undefined && room.price_per_night !== null)
+                            ? room.price_per_night
+                            : ((room.price !== undefined && room.price !== null) ? room.price : '');
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${room.room_number || room.number || ''}</td>
+                                <td>${room.room_type || room.type || ''}</td>
+                                <td>${room.capacity || ''}</td>
+                                <td>${priceVal}</td>
+                                <td>${statusBadge}</td>
+                                <td>${room.section || room.assigned_section || ''}</td>
+                            </tr>`;
+                    });
+                } else if (data.success && list.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="fas fa-bed fa-2x mb-2"></i><br>
+                                No rooms found
+                            </td>
+                        </tr>`;
+                } else {
+                    throw new Error(data.error || 'Failed to load rooms');
+                }
+            } catch (error) {
+                console.error('Error loading rooms:', error);
+                const tbody = document.getElementById('roomsTableBody');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Error loading rooms: ${error.message}
+                            </td>
+                        </tr>`;
+                }
+            }
+        }
+
+        function getRoomStatusBadge(status) {
+            switch ((status || '').toLowerCase()) {
+                case 'available':
+                    return '<span class="badge bg-success">Available</span>';
+                case 'reserved':
+                    return '<span class="badge bg-warning text-dark">Reserved</span>';
+                case 'occupied':
+                    return '<span class="badge bg-primary">Occupied</span>';
+                case 'maintenance':
+                    return '<span class="badge bg-secondary">Maintenance</span>';
+                default:
+                    return '<span class="badge bg-secondary">Unknown</span>';
+            }
+        }
+
+        async function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                try {
+                    await fetch('../backend/super_admin_logout.php', {
+                        method: 'POST'
+                    });
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+                
+                // Redirect to login page
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Sidebar toggling for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('appSidebar');
+            const content = document.getElementById('contentWrapper');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (!sidebar || !content) return;
+            sidebar.classList.toggle('open');
+            content.classList.toggle('shifted');
+            if (overlay) overlay.classList.toggle('show');
+        }
+        function closeSidebar() {
+            const sidebar = document.getElementById('appSidebar');
+            const content = document.getElementById('contentWrapper');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (!sidebar || !content) return;
+            sidebar.classList.remove('open');
+            content.classList.remove('shifted');
+            if (overlay) overlay.classList.remove('show');
+        }
+        // Desktop collapsed sidebar toggle + persistence
+        function applySidebarCollapsed(collapsed) {
+            document.body.classList.toggle('sidebar-collapsed', !!collapsed);
+            try { localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0'); } catch (e) {}
+        }
+
+        function toggleSidebarCollapsed() {
+            const collapsed = !document.body.classList.contains('sidebar-collapsed');
+            applySidebarCollapsed(collapsed);
+        }
+        // Initialize collapsed state on load
+        (function initSidebarCollapsed() {
+            try {
+                const saved = localStorage.getItem('sidebarCollapsed');
+                if (saved === '1') applySidebarCollapsed(true);
+            } catch (e) {}
+        })();
+
+        // Load employees data from backend
+        async function loadEmployees() {
+            try {
+                const response = await fetch('../backend/get_employees.php');
+                const data = await response.json();
+                
+                const tbody = document.getElementById('employeesTableBody');
+                
+                if (data.success && data.data.length > 0) {
+                    tbody.innerHTML = '';
+                    data.data.forEach((employee, index) => {
+                        const statusBadge = getStatusBadge(employee.status);
+                        const fullName = `${employee.first_name} ${employee.last_name}`;
+                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${fullName}</td>
+                                <td>${employee.role}</td>
+                                <td>${employee.assigned_section}</td>
+                                <td>${employee.phone}</td>
+                                <td>${statusBadge}</td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-light border" onclick="editEmployee(${employee.id})" title="Edit">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-light border text-danger" onclick="deleteEmployee(${employee.id})" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                } else if (data.success && data.data.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="fas fa-users fa-2x mb-2"></i><br>
+                                No employees found
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    throw new Error(data.error || 'Failed to load employees');
+                }
+            } catch (error) {
+                console.error('Error loading employees:', error);
+                document.getElementById('employeesTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Error loading employees: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Get status badge HTML
+        function getStatusBadge(status) {
+            switch (status?.toLowerCase()) {
+                case 'active':
+                    return '<span class="badge bg-success">Active</span>';
+                case 'inactive':
+                    return '<span class="badge bg-secondary">Inactive</span>';
+                case 'on_leave':
+                    return '<span class="badge bg-warning text-dark">On Leave</span>';
+                case 'pending':
+                    return '<span class="badge bg-info text-dark">Pending</span>';
+                default:
+                    return '<span class="badge bg-secondary">Unknown</span>';
+            }
+        }
+
+        // Placeholder functions for employee actions
+        function editEmployee(id) {
+            alert(`Edit employee with ID: ${id}`);
+            // TODO: Implement edit functionality
+        }
+
+        function deleteEmployee(id) {
+            if (confirm('Are you sure you want to delete this employee?')) {
+                alert(`Delete employee with ID: ${id}`);
+                // TODO: Implement delete functionality
+            }
+        }
+
+        // Calendar rendering logic (English)
+        let viewMonth, viewYear;
+        function initCalendarState() {
+            const today = new Date();
+            viewMonth = today.getMonth();
+            viewYear = today.getFullYear();
+        }
+        function changeMonth(delta) {
+            viewMonth += delta;
+            if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+            if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+            renderCalendar();
+        }
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const title = document.getElementById('calendarTitle');
+            if (!grid || !title) return;
+
+            const firstOfMonth = new Date(viewYear, viewMonth, 1);
+            const lastOfMonth = new Date(viewYear, viewMonth + 1, 0);
+            const startDay = firstOfMonth.getDay(); // 0=Sun..6=Sat
+            const daysInMonth = lastOfMonth.getDate();
+
+            // Determine previous month days to show
+            const prevMonthLastDate = new Date(viewYear, viewMonth, 0).getDate();
+            const cells = [];
+
+            // Cells from previous month
+            for (let i = startDay - 1; i >= 0; i--) {
+                const dateNum = prevMonthLastDate - i;
+                cells.push({ day: dateNum, muted: true, monthOffset: -1 });
+            }
+            // Current month cells
+            for (let d = 1; d <= daysInMonth; d++) {
+                cells.push({ day: d, muted: false, monthOffset: 0 });
+            }
+            // Next month cells to complete the grid (42 cells = 6 weeks)
+            while (cells.length % 7 !== 0 || cells.length < 35) {
+                const nextDay = cells.length - (startDay + daysInMonth) + 1;
+                cells.push({ day: nextDay, muted: true, monthOffset: 1 });
+            }
+            if (cells.length > 42) {
+                // Trim to 42 cells max
+                cells.length = 42;
+            }
+
+            // Update title
+            const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(new Date(viewYear, viewMonth, 1));
+            title.textContent = `${monthName} ${viewYear}`;
+
+            // Render grid
+            const today = new Date();
+            grid.innerHTML = '';
+            cells.forEach(cell => {
+                const cellDiv = document.createElement('div');
+                cellDiv.className = 'calendar-cell' + (cell.muted ? ' muted' : '');
+                const isToday = !cell.muted &&
+                                today.getFullYear() === viewYear &&
+                                today.getMonth() === viewMonth &&
+                                today.getDate() === cell.day;
+                if (isToday) cellDiv.classList.add('today');
+                const dateEl = document.createElement('div');
+                dateEl.className = 'date';
+                dateEl.textContent = cell.day;
+                cellDiv.appendChild(dateEl);
+                grid.appendChild(cellDiv);
+            });
+        }
+
+        // Fixed tabs behavior: show/hide sections
+        function showSection(sectionId) {
+            // Toggle section visibility
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            const sectionEl = document.getElementById(sectionId);
+            if (sectionEl) {
+                sectionEl.classList.add('active');
+                try { localStorage.setItem('activeSection', sectionId); } catch (e) {}
+            }
+
+            // Update active state in sidebar
+            document.querySelectorAll('.sidebar .menu a').forEach(a => a.classList.remove('active'));
+            const activeLink = document.querySelector(`.sidebar .menu a[data-section="${sectionId}"]`);
+            if (activeLink) activeLink.classList.add('active');
+        }
+
+        function initSectionNav() {
+            // Wire clicks
+            document.querySelectorAll('.sidebar .menu a[data-section]').forEach(a => {
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = a.getAttribute('data-section');
+                    showSection(target);
+                });
+            });
+
+            // Restore last opened section
+            let saved = null;
+            try { saved = localStorage.getItem('activeSection'); } catch (e) {}
+            if (saved && document.getElementById(saved)) {
+                showSection(saved);
+            } else {
+                showSection('section-dashboard');
+            }
+        }
+
+        // Load employees and calendar when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadEmployees();
+            loadRooms();
+            initCalendarState();
+            renderCalendar();
+            initSectionNav();
+        });
+    </script>
+</body>
+</html>

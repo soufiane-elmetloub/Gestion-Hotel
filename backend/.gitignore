@@ -1,0 +1,7 @@
+# Keep local secrets out of Git
+config.local.php
+.env
+# Common local files
+*.log
+.DS_Store
+Thumbs.db
