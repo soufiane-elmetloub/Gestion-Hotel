@@ -67,6 +67,25 @@ Fichiers importants :
 ## 🛠️ Dépannage
 - **Erreur JSON "Unexpected token '<'"** :  
   Utiliser toujours :
-  ```php
-  $database = new Database();
-  $pdo = $database->getConnection();
+   ```php
+    $database = new Database();
+    $pdo = $database->getConnection();
+    ```
+   
+  🌐 Problèmes réseau :
+      Vérifier que le téléphone et le PC sont sur le même Wi-Fi
+
+🔓 Cleartext traffic :
+       Activer pour les tests HTTP
+
+🔐 Sécurité
+
+- Utiliser HTTPS en production
+
+- Toujours hacher les mots de passe
+
+- Changer les identifiants par défaut avant déploiement
+
+📜 Licence
+👁️ Projet éducatif / démonstration. Peut être publié sous licence MIT, Apache-2.0, …
+  
