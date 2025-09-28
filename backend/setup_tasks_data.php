@@ -7,7 +7,7 @@ try {
     $pdo = $database->getConnection();
     
     if (!$pdo) {
-        throw new Exception("فشل الاتصال بقاعدة البيانات");
+        throw new Exception("Échec de la connexion à la base de données");
     }
     
     // First, ensure the tasks table exists (from the SQL file)
@@ -26,7 +26,7 @@ try {
     ";
     
     $pdo->exec($createTableSQL);
-    echo "✅ جدول المهام تم إنشاؤه بنجاح<br>";
+    echo "✅ La table des tâches a été créée avec succès<br>";
     
     // Ensure employees exist first
     $employeesSQL = "
@@ -40,11 +40,11 @@ try {
     $stmt = $pdo->prepare($employeesSQL);
     $hashedPassword = password_hash('1234', PASSWORD_DEFAULT);
     $stmt->execute([$hashedPassword, $hashedPassword, $hashedPassword, $hashedPassword]);
-    echo "✅ تم التأكد من وجود الموظفين<br>";
+    echo "✅ Vérification de l'existence des employés effectuée<br>";
     
     // Clear existing test data
     $pdo->exec("DELETE FROM tasks WHERE employee_id IN (1, 2, 3, 4)");
-    echo "✅ تم حذف البيانات التجريبية السابقة<br>";
+    echo "✅ Les anciennes données de test ont été supprimées<br>";
     
     // Insert sample tasks for different employees
     $sampleTasks = [
@@ -80,7 +80,7 @@ try {
         $stmt->execute([$task[0], $task[1], $task[2], $task[3], $daysAgo]);
     }
     
-    echo "✅ تم إدراج " . count($sampleTasks) . " مهمة تجريبية<br>";
+    echo "✅ " . count($sampleTasks) . " tâches de test ont été insérées<br>";
     
     // Display summary
     $countSQL = "SELECT 
@@ -95,9 +95,9 @@ try {
     
     $result = $pdo->query($countSQL);
     
-    echo "<br><h3>📊 ملخص المهام حسب الموظف:</h3>";
+    echo "<br><h3>📊 Récapitulatif des tâches par employé :</h3>";
     echo "<table border='1' style='border-collapse: collapse; width: 100%;'>";
-    echo "<tr><th>معرف الموظف</th><th>المجموع</th><th>في الانتظار</th><th>قيد التنفيذ</th><th>مكتملة</th></tr>";
+    echo "<tr><th>ID Employé</th><th>Total</th><th>En attente</th><th>En cours</th><th>Terminée</th></tr>";
     
     while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
         echo "<tr>";
@@ -110,10 +110,10 @@ try {
     }
     echo "</table>";
     
-    echo "<br><h3>✅ تم إعداد البيانات التجريبية بنجاح!</h3>";
-    echo "<p>يمكنك الآن اختبار النظام باستخدام معرفات الموظفين: 1, 2, 3, 4</p>";
+    echo "<br><h3>✅ Les données de test ont été préparées avec succès !</h3>";
+    echo "<p>Vous pouvez maintenant tester le système avec les identifiants employés : 1, 2, 3, 4</p>";
     
 } catch (Exception $e) {
-    echo "❌ خطأ في إعداد البيانات: " . $e->getMessage();
+    echo "❌ Erreur lors de la préparation des données : " . $e->getMessage();
 }
 ?>

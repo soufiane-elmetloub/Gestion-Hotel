@@ -4,7 +4,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Handle preflight requests
+// Gérer les requêtes preflight (CORS)
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit(0);
 }
@@ -12,50 +12,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 require_once 'config.php';
 
 try {
-    // Create database connection
+    // Créer une connexion à la base de données
     $database = new Database();
     $pdo = $database->getConnection();
     
     if (!$pdo) {
-        throw new Exception('Database connection failed');
+        throw new Exception('Échec de la connexion à la base de données');
     }
     
-    // Get employee_id from request
-    $employee_id = isset($_GET['employee_id']) ? intval($_GET['employee_id']) : 0;
+    // Récupérer employee_id depuis GET, POST ou JSON
+    $employee_id = 0;
+    if (isset($_GET['employee_id'])) {
+        $employee_id = intval($_GET['employee_id']);
+    } elseif (isset($_POST['employee_id'])) {
+        $employee_id = intval($_POST['employee_id']);
+    } else {
+        $raw = file_get_contents('php://input');
+        if ($raw) {
+            $json = json_decode($raw, true);
+            if (json_last_error() === JSON_ERROR_NONE && isset($json['employee_id'])) {
+                $employee_id = intval($json['employee_id']);
+            }
+        }
+    }
     
     if ($employee_id <= 0) {
         echo json_encode([
             'success' => false,
-            'message' => 'معرف الموظف مطلوب',
+            'message' => "L'identifiant de l'employé est requis",
             'tasks' => []
         ]);
         exit;
     }
     
-    // Get tasks for the employee
-    $stmt = $pdo->prepare("
-        SELECT 
-            id,
-            title,
-            description,
-            status,
-            created_at,
-            updated_at
-        FROM tasks 
-        WHERE employee_id = ? 
-        ORDER BY 
-            CASE 
-                WHEN status = 'pending' THEN 1
-                WHEN status = 'in_progress' THEN 2
-                WHEN status = 'done' THEN 3
-            END,
-            created_at DESC
-    ");
+    // Récupérer les tâches de l'employé
+    $stmt = $pdo->prepare("\n        SELECT \n            id,\n            title,\n            description,\n            status,\n            created_at,\n            updated_at\n        FROM tasks \n        WHERE employee_id = ? \n        ORDER BY \n            CASE \n                WHEN status = 'pending' THEN 1\n                WHEN status = 'in_progress' THEN 2\n                WHEN status = 'done' THEN 3\n            END,\n            created_at DESC\n    ");
     
     $stmt->execute([$employee_id]);
     $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Format tasks for Android
+    // Formater les tâches pour Android
     $formatted_tasks = [];
     foreach ($tasks as $task) {
         $formatted_tasks[] = [
@@ -71,7 +67,7 @@ try {
         ];
     }
     
-    // Get task counts by status
+    // Compter les tâches par statut
     $counts = [
         'total' => count($tasks),
         'pending' => 0,
@@ -85,7 +81,7 @@ try {
     
     echo json_encode([
         'success' => true,
-        'message' => 'تم جلب المهام بنجاح',
+        'message' => 'Tâches récupérées avec succès',
         'tasks' => $formatted_tasks,
         'counts' => $counts
     ]);
@@ -93,7 +89,7 @@ try {
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,
-        'message' => 'خطأ في جلب المهام: ' . $e->getMessage(),
+        'message' => 'Erreur lors de la récupération des tâches: ' . $e->getMessage(),
         'tasks' => []
     ]);
 }
@@ -101,13 +97,13 @@ try {
 function getStatusText($status) {
     switch ($status) {
         case 'pending':
-            return 'في الانتظار';
+            return 'En attente';
         case 'in_progress':
-            return 'قيد التنفيذ';
+            return 'En cours';
         case 'done':
-            return 'مكتملة';
+            return 'Terminée';
         default:
-            return 'غير محدد';
+            return 'Indéfini';
     }
 }
 

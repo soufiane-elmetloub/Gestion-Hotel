@@ -21,6 +21,6 @@ session_start();
 
 echo json_encode([
     'success' => true,
-    'message' => 'تم تسجيل الخروج بنجاح'
+    'message' => 'Déconnexion réussie'
 ]);
 ?>

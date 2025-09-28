@@ -1,15 +1,14 @@
 <?php
-// Setup script to import super_admin table and data
-// Database configuration
-$host = 'localhost';
-$dbname = 'smart-hotel';
-$username_db = 'Unknown';
-$password_db = '5L7Fqp9GG-@r7trj';
+// Script d'installation pour créer la table super_admin et insérer des données
+require_once 'config.php';
 
 try {
-    // Create database connection
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username_db, $password_db);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Créer une connexion via la classe Database
+    $database = new Database();
+    $pdo = $database->getConnection();
+    if (!$pdo) {
+        throw new PDOException('Échec de la connexion à la base de données');
+    }
     
     // Drop table if exists
     $pdo->exec("DROP TABLE IF EXISTS `super_admin`");
@@ -31,30 +30,31 @@ try {
     $pdo->exec($createTable);
     
     // Insert super admin data
-    $insertData = "INSERT INTO `super_admin` (`id`, `username`, `password_hash`, `created_at`, `last_login`, `is_active`) VALUES (1, 'superadmin', 'super-1234', '2025-09-08 13:14:02', NULL, 1)";
+    $hash = password_hash('super-1234', PASSWORD_DEFAULT);
+    $insertData = "INSERT INTO `super_admin` (`id`, `username`, `password_hash`, `created_at`, `last_login`, `is_active`) VALUES (1, 'superadmin', :ph, NOW(), NULL, 1)";
     
-    $pdo->exec($insertData);
+    $stmt = $pdo->prepare($insertData);
+    $stmt->execute([':ph' => $hash]);
     
     echo "<!DOCTYPE html>
-    <html lang='ar' dir='rtl'>
+    <html lang='fr' dir='ltr'>
     <head>
         <meta charset='UTF-8'>
-        <title>إعداد قاعدة البيانات</title>
+        <title>Initialisation de la base de données</title>
         <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css' rel='stylesheet'>
-        <link href='https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap' rel='stylesheet'>
-        <style>body{font-family:'Cairo',sans-serif;background:#f8f9fc;}</style>
+        <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif;background:#f8f9fc;}</style>
     </head>
     <body>
         <div class='container mt-5'>
             <div class='alert alert-success text-center'>
-                <h3><i class='fas fa-check-circle'></i> تم إعداد قاعدة البيانات بنجاح!</h3>
-                <p>تم إنشاء جدول super_admin وإضافة المدير العام.</p>
+                <h3><i class='fas fa-check-circle'></i> Base de données initialisée avec succès !</h3>
+                <p>La table super_admin a été créée et le super administrateur a été ajouté.</p>
                 <hr>
-                <p><strong>بيانات تسجيل الدخول:</strong></p>
-                <p>اسم المستخدم: <code>superadmin</code></p>
-                <p>كلمة المرور: <code>super-1234</code></p>
+                <p><strong>Identifiants de connexion (démo):</strong></p>
+                <p>Nom d'utilisateur : <code>superadmin</code></p>
+                <p>Mot de passe : <code>super-1234</code></p>
                 <hr>
-                <a href='../Web/login.html' class='btn btn-primary'>الذهاب لصفحة تسجيل الدخول</a>
+                <a href='../Web/login.html' class='btn btn-primary'>Aller à la page de connexion</a>
             </div>
         </div>
     </body>
@@ -62,20 +62,19 @@ try {
     
 } catch (PDOException $e) {
     echo "<!DOCTYPE html>
-    <html lang='ar' dir='rtl'>
+    <html lang='fr' dir='ltr'>
     <head>
         <meta charset='UTF-8'>
-        <title>خطأ في الإعداد</title>
+        <title>Erreur d'initialisation</title>
         <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css' rel='stylesheet'>
-        <link href='https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap' rel='stylesheet'>
-        <style>body{font-family:'Cairo',sans-serif;background:#f8f9fc;}</style>
+        <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif;background:#f8f9fc;}</style>
     </head>
     <body>
         <div class='container mt-5'>
             <div class='alert alert-danger text-center'>
-                <h3><i class='fas fa-exclamation-triangle'></i> خطأ في إعداد قاعدة البيانات</h3>
-                <p>" . $e->getMessage() . "</p>
-                <p>تأكد من تشغيل XAMPP وإعدادات قاعدة البيانات في config.php</p>
+                <h3><i class='fas fa-exclamation-triangle'></i> Erreur lors de l'initialisation de la base de données</h3>
+                <p>" . htmlspecialchars($e->getMessage()) . "</p>
+                <p>Assurez-vous que XAMPP est en cours d'exécution et que les paramètres de base de données dans config.php sont corrects.</p>
             </div>
         </div>
     </body>

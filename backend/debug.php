@@ -21,13 +21,13 @@ $response = array(
     'success' => true,
     'timestamp' => date('Y-m-d H:i:s'),
     'server_info' => array(
-        'server_name' => $_SERVER['SERVER_NAME'],
-        'server_addr' => $_SERVER['SERVER_ADDR'],
-        'server_port' => $_SERVER['SERVER_PORT'],
-        'remote_addr' => $_SERVER['REMOTE_ADDR'],
-        'request_method' => $_SERVER['REQUEST_METHOD'],
+        'server_name' => $_SERVER['SERVER_NAME'] ?? 'N/A',
+        'server_addr' => $_SERVER['SERVER_ADDR'] ?? 'N/A',
+        'server_port' => $_SERVER['SERVER_PORT'] ?? 'N/A',
+        'remote_addr' => $_SERVER['REMOTE_ADDR'] ?? 'N/A',
+        'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'N/A',
         'http_host' => $_SERVER['HTTP_HOST'] ?? 'N/A',
-        'script_name' => $_SERVER['SCRIPT_NAME']
+        'script_name' => $_SERVER['SCRIPT_NAME'] ?? 'N/A'
     ),
     'database' => array(),
     'connectivity' => array(),
@@ -46,18 +46,18 @@ try {
         
         // Test basic query
         $stmt = $conn->query("SELECT 1");
-        $response['database']['test_query'] = 'successful';
+        $response['database']['test_query'] = $stmt ? 'successful' : 'failed';
         
-        // Check if users table exists
+        // Check if receptionists table exists
         $stmt = $conn->query("SHOW TABLES LIKE 'receptionists'");
-        $table_exists = $stmt->fetch();
+        $table_exists = $stmt && $stmt->fetch();
         $response['database']['receptionists_table'] = $table_exists ? 'exists' : 'missing';
         
-        // Count users
+        // Count users if table exists
         if ($table_exists) {
             $stmt = $conn->query("SELECT COUNT(*) as count FROM receptionists");
             $count = $stmt->fetch();
-            $response['database']['user_count'] = $count['count'];
+            $response['database']['user_count'] = $count['count'] ?? 0;
         }
     } else {
         $response['database']['status'] = 'failed';
@@ -69,7 +69,9 @@ try {
 }
 
 // Connectivity tests
-$base_url = 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']);
+$base_dir = rtrim(str_replace('\\\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
+$base_host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$base_url = 'http://' . $base_host . $base_dir;
 $response['connectivity']['base_url'] = $base_url;
 $response['connectivity']['endpoints'] = array(
     'login' => $base_url . '/login.php',
@@ -78,29 +80,28 @@ $response['connectivity']['endpoints'] = array(
 );
 
 // Generate recommended URLs for Android
-$server_ip = $_SERVER['SERVER_ADDR'];
-$server_port = $_SERVER['SERVER_PORT'];
-$current_host = $_SERVER['HTTP_HOST'];
+$server_ip = $_SERVER['SERVER_ADDR'] ?? '127.0.0.1';
+$server_port = $_SERVER['SERVER_PORT'] ?? '80';
 
 $response['recommendations']['android_urls'] = array(
-    'emulator' => 'http://10.0.2.2:' . $server_port . str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])) . '/',
-    'real_device_current' => 'http://' . $current_host . '/',
-    'real_device_ip' => 'http://' . $server_ip . ':' . $server_port . str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])) . '/',
-    'localhost' => 'http://127.0.0.1:' . $server_port . str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])) . '/'
+    'emulator' => 'http://10.0.2.2:' . $server_port . $base_dir . '/',
+    'real_device_current' => 'http://' . $base_host . '/',
+    'real_device_ip' => 'http://' . $server_ip . ':' . $server_port . $base_dir . '/',
+    'localhost' => 'http://127.0.0.1:' . $server_port . $base_dir . '/'
 );
 
-// Network troubleshooting tips
+// Network troubleshooting tips (French)
 $response['troubleshooting'] = array(
     'common_issues' => array(
-        '1. تأكد أن XAMPP يعمل',
-        '2. تأكد أن Apache يعمل على المنفذ 80',
-        '3. تأكد أن الجهاز الأندرويد والكمبيوتر على نفس الشبكة',
-        '4. افحص جدار الحماية (Firewall)',
-        '5. استخدم ipconfig للحصول على IP الصحيح'
+        '1. Assurez-vous que XAMPP est en cours d\'exécution',
+        '2. Vérifiez qu\'Apache écoute sur le port 80',
+        '3. Assurez-vous que l\'appareil Android et le PC sont sur le même réseau',
+        '4. Vérifiez le pare-feu (Firewall)',
+        '5. Utilisez ipconfig pour obtenir la bonne adresse IP'
     ),
     'test_commands' => array(
-        'Windows' => 'ipconfig للحصول على IP',
-        'Android' => 'افتح المتصفح واختبر الURL'
+        'Windows' => 'ipconfig pour obtenir l\'adresse IP',
+        'Android' => 'Ouvrez le navigateur et testez l\'URL'
     )
 );
 

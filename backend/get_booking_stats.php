@@ -8,46 +8,49 @@ header('Access-Control-Allow-Headers: Content-Type');
 require_once 'config.php';
 
 try {
-    // إنشاء الاتصال بقاعدة البيانات
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Créer une connexion à la base de données via la classe Database
+    $database = new Database();
+    $pdo = $database->getConnection();
+    if (!$pdo) {
+        throw new PDOException('Échec de la connexion à la base de données');
+    }
     
-    // إجمالي عدد الحجوزات
+    // Nombre total de réservations
     $totalQuery = "SELECT COUNT(*) as total_bookings FROM reservations";
     $totalStmt = $pdo->prepare($totalQuery);
     $totalStmt->execute();
     $totalResult = $totalStmt->fetch(PDO::FETCH_ASSOC);
     $totalBookings = $totalResult['total_bookings'];
     
-    // عدد الأشخاص الذين غادروا (checked_out)
+    // Nombre de clients ayant quitté (checked_out)
     $checkedOutQuery = "SELECT COUNT(*) as checked_out_guests FROM reservations WHERE status = 'checked_out'";
     $checkedOutStmt = $pdo->prepare($checkedOutQuery);
     $checkedOutStmt->execute();
     $checkedOutResult = $checkedOutStmt->fetch(PDO::FETCH_ASSOC);
     $checkedOutGuests = $checkedOutResult['checked_out_guests'];
     
-    // عدد الغرف المشغولة (reserved أو checked_in)
+    // Nombre de chambres occupées (reserved ou checked_in)
     $occupiedQuery = "SELECT COUNT(*) as occupied_rooms FROM reservations WHERE status IN ('reserved', 'checked_in')";
     $occupiedStmt = $pdo->prepare($occupiedQuery);
     $occupiedStmt->execute();
     $occupiedResult = $occupiedStmt->fetch(PDO::FETCH_ASSOC);
     $occupiedRooms = $occupiedResult['occupied_rooms'];
     
-    // إحصائيات إضافية مفيدة
+    // Statistiques additionnelles utiles
     $cancelledQuery = "SELECT COUNT(*) as cancelled_bookings FROM reservations WHERE status = 'cancelled'";
     $cancelledStmt = $pdo->prepare($cancelledQuery);
     $cancelledStmt->execute();
     $cancelledResult = $cancelledStmt->fetch(PDO::FETCH_ASSOC);
     $cancelledBookings = $cancelledResult['cancelled_bookings'];
     
-    // إجمالي المبلغ المحصل
+    // Montant total encaissé
     $totalAmountQuery = "SELECT SUM(total_amount) as total_revenue FROM reservations WHERE status != 'cancelled'";
     $totalAmountStmt = $pdo->prepare($totalAmountQuery);
     $totalAmountStmt->execute();
     $totalAmountResult = $totalAmountStmt->fetch(PDO::FETCH_ASSOC);
     $totalRevenue = $totalAmountResult['total_revenue'] ?? 0;
     
-    // إرجاع النتائج بصيغة JSON
+    // Retourner les résultats en JSON
     $response = array(
         'success' => true,
         'data' => array(
@@ -58,16 +61,16 @@ try {
             'total_revenue' => (float)$totalRevenue,
             'active_bookings' => (int)($totalBookings - $checkedOutGuests - $cancelledBookings)
         ),
-        'message' => 'تم جلب إحصائيات الحجوزات بنجاح'
+        'message' => 'Statistiques des réservations récupérées avec succès'
     );
     
     echo json_encode($response, JSON_UNESCAPED_UNICODE);
     
 } catch(PDOException $e) {
-    // في حالة حدوث خطأ في قاعدة البيانات
+    // En cas d'erreur de base de données
     $response = array(
         'success' => false,
-        'error' => 'خطأ في قاعدة البيانات: ' . $e->getMessage(),
+        'error' => 'Erreur de base de données: ' . $e->getMessage(),
         'data' => array(
             'total_bookings' => 0,
             'checked_out_guests' => 0,

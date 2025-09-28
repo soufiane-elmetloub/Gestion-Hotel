@@ -10,19 +10,19 @@ try {
     $database = new Database();
     $pdo = $database->getConnection();
     
-    // Get search query - support both 'query' and 'last_name' parameters for Android compatibility
+    // Récupérer le terme de recherche — prend en charge 'query' et 'last_name' pour compatibilité Android
     $query = $_GET['query'] ?? $_GET['last_name'] ?? '';
     
     if (empty($query)) {
         echo json_encode([
             'success' => false,
-            'message' => 'Search query is required',
+            'message' => 'Le paramètre de recherche est requis',
             'supported_params' => ['query', 'last_name']
         ]);
         exit;
     }
     
-    // Search clients by name, phone, or national ID
+    // Rechercher des clients par nom, téléphone ou identifiant national
     $stmt = $pdo->prepare("
         SELECT 
             id,
@@ -32,8 +32,8 @@ try {
             national_id,
             created_at,
             CASE 
-                WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 'نشط'
-                ELSE 'غير نشط'
+                WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 'Actif'
+                ELSE 'Inactif'
             END as status
         FROM clients 
         WHERE 
@@ -57,7 +57,7 @@ try {
 } catch (PDOException $e) {
     echo json_encode([
         'success' => false,
-        'message' => 'Database error: ' . $e->getMessage()
+        'message' => 'Erreur de base de données: ' . $e->getMessage()
     ]);
 }
 ?>

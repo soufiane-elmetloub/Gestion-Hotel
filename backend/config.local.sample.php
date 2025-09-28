@@ -1,17 +1,17 @@
 <?php
 // config.local.sample.php
-// انسخ هذا الملف إلى config.local.php وضع بيانات قاعدة البيانات الحقيقية لديك هنا.
-// ملاحظة: هذا الملف سيتم تجاهله من Git (راجع backend/.gitignore)
+// Copiez ce fichier vers config.local.php et renseignez vos vraies informations de base de données ici.
+// Remarque : ce fichier est ignoré par Git (voir backend/.gitignore).
 
-// تعريف الثوابت التالية سيقوم بعمل Override للقيم في config.php
-// لا ترفع هذا الملف إلى GitHub أبداً.
+// Définir les constantes suivantes surchargera les valeurs dans config.php.
+// Ne publiez jamais votre config.local.php sur GitHub.
 
-define('DB_HOST', 'localhost');          // مثال: localhost أو 127.0.0.1
+define('DB_HOST', 'localhost');          // Exemple : localhost ou 127.0.0.1
 
-define('DB_USER', 'Unknown');            // اسم مستخدم قاعدة البيانات الحقيقي
+define('DB_USER', 'votre_utilisateur');  // Nom d'utilisateur de la base de données
 
-define('DB_PASS', '5L7Fqp9GG-@r7trj');    // كلمة المرور الحقيقية
+define('DB_PASS', 'votre_mot_de_passe'); // Mot de passe de la base de données
 
-define('DB_NAME', 'smart-hotel');        // اسم قاعدة البيانات
+define('DB_NAME', 'smart-hotel');        // Nom de la base de données
 
-// لا حاجة لكتابة أي كود آخر هنا. فقط التعريفات أعلاه.
+// Aucune autre logique n'est nécessaire ici. Uniquement les définitions ci-dessus.

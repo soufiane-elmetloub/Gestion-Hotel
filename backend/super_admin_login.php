@@ -9,11 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-// Database configuration
-$host = 'localhost';
-$dbname = 'smart-hotel';
-$username_db = 'Unknown';
-$password_db = '5L7Fqp9GG-@r7trj';
+require_once __DIR__ . '/config.php';
 
 // Start session
 session_start();
@@ -25,7 +21,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 if (!isset($input['username']) || !isset($input['password'])) {
     echo json_encode([
         'success' => false,
-        'message' => 'اسم المستخدم وكلمة المرور مطلوبان'
+        'message' => "Le nom d'utilisateur et le mot de passe sont requis"
     ]);
     exit;
 }
@@ -37,15 +33,18 @@ $password = trim($input['password']);
 if (empty($username) || empty($password)) {
     echo json_encode([
         'success' => false,
-        'message' => 'يرجى إدخال اسم المستخدم وكلمة المرور'
+        'message' => "Veuillez saisir le nom d'utilisateur et le mot de passe"
     ]);
     exit;
 }
 
 try {
-    // Create database connection
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username_db, $password_db);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Create database connection via central configuration
+    $database = new Database();
+    $pdo = $database->getConnection();
+    if (!$pdo) {
+        throw new PDOException("Échec de la connexion à la base de données");
+    }
     
     // Check if super_admin table exists, if not create it
     $checkTable = $pdo->query("SHOW TABLES LIKE 'super_admin'");
@@ -65,9 +64,10 @@ try {
         ";
         $pdo->exec($createTable);
         
-        // Insert default super admin (password is plain text for now as per SQL file)
-        $insertAdmin = "INSERT INTO `super_admin` (`username`, `password_hash`, `is_active`) VALUES ('superadmin', 'super-1234', 1)";
-        $pdo->exec($insertAdmin);
+        // Insert default super admin with hashed password
+        $hash = password_hash('super-1234', PASSWORD_DEFAULT);
+        $insertAdmin = $pdo->prepare("INSERT INTO `super_admin` (`username`, `password_hash`, `is_active`) VALUES ('superadmin', :ph, 1)");
+        $insertAdmin->execute([':ph' => $hash]);
     }
     
     // Query to find user
@@ -76,9 +76,19 @@ try {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($user) {
-        // For now, we're using plain text password as per the SQL file
-        // In production, you should use password_hash() and password_verify()
-        if ($password === $user['password_hash']) {
+        // Verify hashed password; backward-compatibility: migrate if stored as plain text
+        $isValid = false;
+        if (password_verify($password, $user['password_hash'])) {
+            $isValid = true;
+        } elseif ($password === $user['password_hash']) {
+            // migrate to hashed password
+            $newHash = password_hash($password, PASSWORD_DEFAULT);
+            $upd = $pdo->prepare("UPDATE super_admin SET password_hash = ? WHERE id = ?");
+            $upd->execute([$newHash, $user['id']]);
+            $isValid = true;
+        }
+        
+        if ($isValid) {
             // Update last login
             $updateLogin = $pdo->prepare("UPDATE super_admin SET last_login = NOW() WHERE id = ?");
             $updateLogin->execute([$user['id']]);
@@ -90,7 +100,7 @@ try {
             
             echo json_encode([
                 'success' => true,
-                'message' => 'تم تسجيل الدخول بنجاح',
+                'message' => 'Connexion réussie',
                 'user' => [
                     'id' => $user['id'],
                     'username' => $user['username'],
@@ -100,13 +110,13 @@ try {
         } else {
             echo json_encode([
                 'success' => false,
-                'message' => 'كلمة المرور غير صحيحة'
+                'message' => 'Mot de passe incorrect'
             ]);
         }
     } else {
         echo json_encode([
             'success' => false,
-            'message' => 'اسم المستخدم غير موجود أو غير مفعل'
+            'message' => "Nom d'utilisateur introuvable ou inactif"
         ]);
     }
     
@@ -114,13 +124,13 @@ try {
     error_log("Database error: " . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'message' => 'خطأ في قاعدة البيانات: ' . $e->getMessage()
+        'message' => 'Erreur de base de données: ' . $e->getMessage()
     ]);
 } catch (Exception $e) {
     error_log("General error: " . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'message' => 'حدث خطأ غير متوقع'
+        'message' => 'Erreur inattendue'
     ]);
 }
 ?>
