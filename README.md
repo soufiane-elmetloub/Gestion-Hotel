@@ -72,11 +72,11 @@ Fichiers importants :
     $pdo = $database->getConnection();
     ```
    
-  🌐 Problèmes réseau 
-     Vérifier que le téléphone et le PC sont sur le même Wi-Fi
+🌐 Problèmes réseau :
+  - Vérifier que le téléphone et le PC sont sur le même Wi-Fi
 
-🔓 Cleartext traffic 
-     Activer pour les tests HTTP
+🔓 Cleartext traffic :
+  - Activer pour les tests HTTP
 
 🔐 Sécurité
 - Utiliser HTTPS en production
