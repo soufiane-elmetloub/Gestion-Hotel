@@ -1,37 +1,72 @@
-# 🏨 Smart Hotel / Gestion-Hôtel
+# 🏨 Smart Hotel
 
-## 📌 Description
+Solution complète de gestion hôtelière combinant :  
+- Application Android (Java + Volley)  
+- Backend en PHP + MySQL  
+- Interface Web d’administration  
 
-**Smart Hotel** est une solution intégrée de gestion hôtelière combinant :  
-- Une application **Android** (Java + Volley)  
-- Un **Backend PHP** connecté à une base **MySQL**  
-
-Cette solution facilite la gestion des réservations, des clients, des chambres et des revenus, tout en offrant une interface moderne et intuitive.  
-
----
-
-## ✨ Fonctionnalités
-
-- Authentification et gestion des utilisateurs  
-- Gestion des clients, chambres, tâches, réservations et revenus  
-- APIs unifiées via **HTTP/JSON**  
-- Tableaux de bord et statistiques en temps réel  
-- Sécurité renforcée grâce à une classe `Database` standardisée (fiabilité, absence d’erreurs JSON)  
-- Interface responsive et facile à utiliser  
+Gère les clients, chambres, réservations, tâches et revenus, avec une interface moderne et support RTL (arabe).  
 
 ---
 
-## ⚙️ Compatibilité
-
-- **Émulateur Android** : 10.0.2.2  
-- **Appareils réels** : via IP local  
+## ✨ Fonctionnalités principales
+- 🔐 Authentification : super administrateur et employés  
+- 👥 Gestion : clients, chambres, réservations, tâches, revenus  
+- 📊 Tableaux de bord et statistiques en temps réel  
+- 🌐 APIs unifiées via HTTP/JSON  
+- ⚡ Connexion fiable via une classe `Database`  
+- 📱 Compatibilité réseau : émulateur `10.0.2.2` ou appareil réel via IP  
 
 ---
 
 ## 📂 Structure du projet
+- `SmartHotelApp/` → Application Android  
+- `backend/` → PHP + MySQL  
+- `Web/` → Interface Web  
 
-- `/android-app` → Application Android (Java + Volley)  
-- `/backend-php` → Code backend en PHP + API REST 
+Fichiers importants :  
+- `backend/config.php` → Connexion BD  
+- `backend/login.php` → Connexion employé  
+- `backend/super_admin_login.php` → Connexion super admin  
+- `Web/index.html`, `Web/dashboard.html`, `Web/settings.html`  
 
+---
 
+## ✅ Prérequis
+- XAMPP (Apache + MySQL)  
+- Android Studio (SDK 34+)  
+- Appareil Android ou émulateur  
 
+---
+
+## ⚙️ Installation du Backend
+1. Créer une base de données : `smart-hotel`  
+2. Configurer `backend/config.php` avec les identifiants BD  
+3. (Optionnel) Exécuter les scripts d’initialisation (super admin, employés, tâches, revenus)  
+4. Tester la connexion via un fichier de test inclus  
+
+---
+
+## 🌐 Interface Web
+- Ouvrir : `http://localhost/Smart-Hotel/Web/index.html`  
+- Connexion → Accès au tableau de bord, statistiques et paramètres  
+
+---
+
+## 📱 Application Android
+1. Ouvrir le projet dans Android Studio  
+2. Réseau :  
+   - Émulateur : `10.0.2.2`  
+   - Appareil réel : IP locale du PC (modifiable depuis l’app)  
+3. Fichiers clés :  
+   - `NetworkConfig.java`  
+   - `SettingsActivity.java`, `SettingsManager.java`  
+
+---
+
+## 🛠️ Dépannage
+- **Erreur JSON "Unexpected token '<'"** :  
+  Utiliser toujours :
+  ```php
+  $database = new Database();
+  $pdo = $database->getConnection();
